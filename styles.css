@@ -114,3 +114,17 @@ button.buttonrow1:hover, button.buttonrow2:hover {
   box-shadow: 0 0 8px #3CCB69;
   border: 3px #3CCB69 solid;
 }
+
+
+.bannerimagebelow {
+  width: 500px;
+  margin-top: 20px;
+  border-radius: 10px;
+  border: 3px #8859FF solid;
+}
+
+p.bannerimagebelow-disclaimer {
+  text-align: center;
+  margin-top: 0px;
+  color: #302830;
+}
