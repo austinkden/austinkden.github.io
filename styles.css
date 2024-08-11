@@ -11,6 +11,10 @@ body {
   box-sizing: border-box;
 }
 
+a {
+  text-decoration: none;
+}
+
 div.surface {
   background-color: #353D49;
 }
@@ -56,6 +60,56 @@ div.section:not(.namebar) {
 }
 
 .namebar.active {
+  color: #3CCB69;
+  box-shadow: 0 0 8px #3CCB69;
+  border: 3px #3CCB69 solid;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+button.buttonrow1, button.buttonrow2 {
+  background-color: #353D49;
+  border: none;
+  color: #CAC9D1;
+  font-size: 20px;
+  font-weight: bold;
+  width: 248px;
+  height: 70px;
+  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+div.buttons {
+  margin-top: 20px;
+  display: grid;   /* Use flexbox to align buttons side by side */
+  padding: 0;      /* Remove padding */
+  gap: 4px;          /* Ensure there's no gap between flex items */
+  border-radius: 10px;
+}
+
+button.socials {
+  border-radius: 10px 3px 3px 3px;
+}
+
+button.about {
+  border-radius: 3px 10px 3px 3px;
+}
+
+button.blog {
+  border-radius: 3px 3px 3px 10px;
+}
+
+button.others {
+  border-radius: 3px 3px 10px 3px;
+}
+
+button.buttonrow1:hover, button.buttonrow2:hover {
+  cursor: pointer;
+  color: #8859FF;
+}
+
+.button.active {
   color: #3CCB69;
   box-shadow: 0 0 8px #3CCB69;
   border: 3px #3CCB69 solid;
