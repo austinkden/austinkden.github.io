@@ -1,9 +1,9 @@
 document.querySelector('.namebar').addEventListener('click', function() {
-    this.classList.toggle('active');
-  });
+  this.classList.toggle('active');
+});
 
-   document.querySelector('.namebar').addEventListener('click', function() {
-    setTimeout(function() {
-      window.location.href = 'https://austinkden.github.io/ex';
-    }, 350); 
-  });
+ document.querySelector('.namebar').addEventListener('click', function() {
+  setTimeout(function() {
+    window.location.href = 'https://austinkden.github.io/ex';
+  }, 350); 
+});
