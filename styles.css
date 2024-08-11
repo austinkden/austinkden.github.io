@@ -86,6 +86,7 @@ div.buttons {
   padding: 0;      /* Remove padding */
   gap: 4px;          /* Ensure there's no gap between flex items */
   border-radius: 10px;
+  border: 3px #8859FF solid;
 }
 
 button.socials {
