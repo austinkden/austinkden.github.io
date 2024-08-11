@@ -8,6 +8,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
 div.surface {
@@ -20,11 +21,19 @@ div.section {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 600px;
+  width: 500px;
+  margin-top: 20px;
+  box-sizing: border-box;
+}
+
+div.section:not(.namebar) {
+    transition: box-shadow 0.3s ease;
 }
 
 .heading:not(.name) {
   color: #F2EDFF;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .namebar {
@@ -33,17 +42,17 @@ div.section {
   font-weight: bold;
   margin-top: 20px;
   padding: 10px 20px;
-  box-sizing: border-box;
   height: 70px;
   border: 3px #8859FF solid;
   color: #F2EDFF;
-  transition: color 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+  transition: color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .namebar:hover {
   color: #8859FF;
   cursor: pointer;
   box-shadow: 0 0 8px #8859FF;
+  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
 }
 
 .namebar.active {
@@ -52,3 +61,6 @@ div.section {
   border: 3px #3CCB69 solid;
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
