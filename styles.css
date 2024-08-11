@@ -61,6 +61,44 @@ div.section:not(.namebar) {
   border: 3px #3CCB69 solid;
 }
 
+button.buttonrow1.active {
+  color: green;
+  border: 10px green solid;
+}
+
 *, *::before, *::after {
     box-sizing: border-box;
+}
+
+button.buttonrow1 {
+  background-color: #353D49;
+  border: none;
+  color: #CAC9D1;
+  font-size: 20px;
+  font-weight: bold;
+  width: 248px;
+  height: 70px;
+  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+div.buttonrow1 {
+  margin-top: 20px;
+  display: flex;   /* Use flexbox to align buttons side by side */
+  padding: 0;      /* Remove padding */
+  gap: 4px;          /* Ensure there's no gap between flex items */
+  border-radius: 10px;
+  border: 3px #94949C solid;
+}
+
+button.socials {
+  border-radius: 10px 3px 3px 10px;
+}
+
+button.about {
+  border-radius: 3px 10px 10px 3px;
+}
+
+button.buttonrow1:hover {
+  cursor: pointer;
+  color: #8859FF;
 }
