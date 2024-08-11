@@ -48,3 +48,27 @@ div.section {
   box-shadow: 0 0 8px #3CCB69;
   border: 3px #3CCB69 solid;
 }
+
+div.socials {
+  background-color: #353D49; /* Same as .surface */
+  border-radius: 10px;       /* Same as .section */
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;       /* Optional: Adds spacing below the .socials section */
+  width: 100%;               /* Ensures the div takes up full width */
+  box-sizing: border-box;   /* Includes padding and border in the element's total width and height */
+}
+
+.social-icon {
+  width: 50px;
+  height: 50px;
+  margin: 0 10px;
+}
+
+.socials a {
+  display: inline-block;
+}
