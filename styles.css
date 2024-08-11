@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+body {
+  background-color: #1A1D22;
+  font-family: DM Sans;
+  display: flex;
+  justify-content: center;
+}
+
+div.surface {
+  background-color: #353D49;
+}
+
+div.section {
+  border: none;
+  border-radius: 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  height: 10vh;
+}
+
+.heading {
+  color: #F2EDFF;
+}
+
+.namebar {
+  position: relative;
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+@proprety --angle{
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.namebar::after, .namebar::before {
+  content: '';
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-image: conic-gradient(from var(--angle), transparent 50%, #8859FF);
+  z-index: -1;
+  padding: 5px;
+  border-radius: 10px;
+  animation: 3s spin linear infinite;
+}
+
+.card::before {
+  filter: blur(1.5rem);
+}
+
+@keyframes spin {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
+  }
+}
