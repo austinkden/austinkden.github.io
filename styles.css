@@ -1,7 +1,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
-body:not(.site-banner) {
+body {
   background-color: #1A1D22;
   font-family: DM Sans;
   display: flex;
@@ -71,18 +71,4 @@ div.socials {
 
 .socials a {
   display: inline-block;
-}
-
-
-.site-banner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 50px;
-  background-color: #FF9757;
-  color: #F2EDFF;
-  font-size: 20px;
-  border: none;
-  margin: none;
-  font-family: DM Sans;
 }
