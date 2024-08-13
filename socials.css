@@ -67,7 +67,7 @@ button {
   font-weight: bold;
   width: 500px;
   height: 70px;
-  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
+  transition: color 0.5s ease, border 0.3s ease, background-color 0.3 ease;
 }
 
 div.buttons {
@@ -81,7 +81,7 @@ div.buttons {
 
 button.instagram {
   border-radius: 10px 10px 3px 3px;
-  background-image: linear-gradient(to right, #f9ce34, #ee2a7b, #6228d7)
+  background-image: linear-gradient(120deg, #f9ce34, #ee2a7b, #6228d7)
 }
 
 button.x {
@@ -94,5 +94,5 @@ button.snapchat {
 
 button:hover {
   cursor: pointer;
-  color: #8859FF;
+  background-color: #8859FF;
 }
