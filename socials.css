@@ -81,6 +81,7 @@ div.buttons {
 
 button.instagram {
   border-radius: 10px 10px 3px 3px;
+  background-image: linear-gradient(to right, #f9ce34, #ee2a7b, #6228d7)
 }
 
 button.x {
