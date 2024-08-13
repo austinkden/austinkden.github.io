@@ -52,14 +52,14 @@ div.section {
   color: #8859FF;
   cursor: pointer;
   box-shadow: 0 0 8px #8859FF;
-  transition: color 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
 }
 
 *, *::before, *::after {
     box-sizing: border-box;
 }
 
-button:not(.instagram) {
+button {
   background-color: #353D49;
   border: none;
   color: #CAC9D1;
@@ -67,7 +67,7 @@ button:not(.instagram) {
   font-weight: bold;
   width: 500px;
   height: 70px;
-  transition: color 0.3s ease;
+  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
 }
 
 div.buttons {
@@ -81,25 +81,7 @@ div.buttons {
 
 button.instagram {
   border-radius: 10px 10px 3px 3px;
-  background-color: #353D49;
-  border: none;
-  color: #CAC9D1; /* default text color */
-  font-size: 20px;
-  font-weight: bold;
-  width: 500px;
-  height: 70px;
-  transition: color 0.3s ease;
-  background-clip: text;
-  -webkit-background-clip: text; /* For WebKit-based browsers */
-  text-fill-color: transparent; /* Make the text color transparent */
 }
-
-button.instagram:hover {
-  background: linear-gradient(to right, #F9CE34, #EE2A7B, #6228D7);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-
 
 button.x {
   border-radius: 3px;
@@ -111,4 +93,5 @@ button.snapchat {
 
 button:hover {
   cursor: pointer;
+  color: #8859FF;
 }
