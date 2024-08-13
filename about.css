@@ -58,3 +58,7 @@ div.section {
 *, *::before, *::after {
     box-sizing: border-box;
 }
+
+div.about {
+  color: #CAC9D1
+}
