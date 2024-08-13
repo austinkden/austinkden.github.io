@@ -64,3 +64,7 @@ div.about {
   display: flex;
   flex-direction: column;
 }
+
+p.about {
+    margin: none;
+}
