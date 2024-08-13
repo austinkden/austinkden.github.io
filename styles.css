@@ -84,6 +84,7 @@ button.socials {
 
 button.about {
   border-radius: 3px 10px 3px 3px;
+  background-image: linear-gradient(to bottom right, #1A1D22, #8859FF, #1A1D22)
 }
 
 button.blog {
