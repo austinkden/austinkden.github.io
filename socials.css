@@ -1,0 +1,66 @@
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+body {
+  background-color: #1A1D22;
+  font-family: DM Sans;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+div.surface {
+  background-color: #353D49;
+}
+
+div.section {
+  border-radius: 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 500px;
+  margin-top: 20px;
+  box-sizing: border-box;
+}
+
+.heading:not(.name) {
+  color: #F2EDFF;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.namebar {
+  position: relative;
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 20px;
+  padding: 10px 20px;
+  height: 70px;
+  border: 3px #8859FF solid;
+  color: #F2EDFF;
+  transition: color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.namebar:hover {
+  color: #8859FF;
+  cursor: pointer;
+  box-shadow: 0 0 8px #8859FF;
+  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+.namebar.active {
+  color: #3CCB69;
+  box-shadow: 0 0 8px #3CCB69;
+  border: 3px #3CCB69 solid;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
