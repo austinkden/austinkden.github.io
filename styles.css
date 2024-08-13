@@ -105,13 +105,6 @@ button.buttonrow1:hover, button.buttonrow2:hover {
   color: #8859FF;
 }
 
-.button.active {
-  color: #3CCB69;
-  box-shadow: 0 0 8px #3CCB69;
-  border: 3px #3CCB69 solid;
-}
-
-
 .bannerimagebelow {
   width: 500px;
   margin-top: 20px;

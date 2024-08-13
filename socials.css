@@ -64,3 +64,35 @@ div.section {
 *, *::before, *::after {
     box-sizing: border-box;
 }
+
+button {
+  background-color: #353D49;
+  border: none;
+  color: #CAC9D1;
+  font-size: 20px;
+  font-weight: bold;
+  width: 500px;
+  height: 70px;
+  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+div.buttons {
+  margin-top: 20px;
+  padding: 0;      /* Remove padding */
+  gap: 4px;          /* Ensure there's no gap between flex items */
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+button.instagram {
+  border-radius: 10px 10px 3px 3px;
+}
+
+button.x {
+  border-radius: 3px;
+}
+
+button.snapchat {
+  border-radius: 3px 3px 10px 10px;
+}
