@@ -55,12 +55,6 @@ div.section {
   transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
 }
 
-.namebar.active {
-  color: #3CCB69;
-  box-shadow: 0 0 8px #3CCB69;
-  border: 3px #3CCB69 solid;
-}
-
 *, *::before, *::after {
     box-sizing: border-box;
 }
