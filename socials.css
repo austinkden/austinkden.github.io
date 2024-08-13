@@ -52,14 +52,14 @@ div.section {
   color: #8859FF;
   cursor: pointer;
   box-shadow: 0 0 8px #8859FF;
-  transition: color 0.5s ease, box-shadow 0.3s ease, border 0.3s ease;
+  transition: color 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
 }
 
 *, *::before, *::after {
     box-sizing: border-box;
 }
 
-button {
+button:not(.instagram) {
   background-color: #353D49;
   border: none;
   color: #CAC9D1;
@@ -67,7 +67,7 @@ button {
   font-weight: bold;
   width: 500px;
   height: 70px;
-  transition: color 0.5s ease;
+  transition: color 0.3s ease;
 }
 
 div.buttons {
@@ -81,8 +81,17 @@ div.buttons {
 
 button.instagram {
   border-radius: 10px 10px 3px 3px;
-  background-image: linear-gradient(120deg, #f9ce34, #ee2a7b, #6228d7);
-  transition: background 0.3s ease;
+  background-color: #353D49;
+  border: none;
+  color: #CAC9D1;
+  font-size: 20px;
+  font-weight: bold;
+  width: 500px;
+  height: 70px;
+  transition: color 0.3s ease;
+  background: linear-gradient(90deg, #F9CE34, #EE2A7B, #6228D7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 button.x {
@@ -98,5 +107,5 @@ button:hover {
 }
 
 button.instagram:hover {
-  background-image: linear-gradient(120deg, #a68421, #981a4b, #3a187d);
+  color: transparent;
 }
