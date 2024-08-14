@@ -72,9 +72,9 @@ button.buttonrow1, button.buttonrow2 {
 
 div.buttons {
   margin-top: 20px;
-  display: grid;   /* Use flexbox to align buttons side by side */
-  padding: 0;      /* Remove padding */
-  gap: 4px;          /* Ensure there's no gap between flex items */
+  display: grid;
+  padding: 0;
+  gap: 4px;
   border-radius: 10px;
 }
 

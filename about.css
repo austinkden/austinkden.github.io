@@ -59,16 +59,10 @@ div.section {
     box-sizing: border-box;
 }
 
-div.about {
-  color: #CAC9D1;
-}
-
-.about p {
-    display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    unicode-bidi: isolate;
-    padding: 5px 0px;
+.about {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Aligns text to the left within the column */
+  padding: 20px;
+  color: #CAC91;
 }
