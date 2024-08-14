@@ -62,6 +62,7 @@ div.section {
 .about {
   display: flex;
   flex-direction: column;
+  margin: none;
   align-items: flex-start; /* Aligns text to the left within the column */
   padding: 5px;
   color: #CAC9D1;
