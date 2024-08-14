@@ -64,10 +64,10 @@ div.section {
   flex-direction: column;
   margin: none;
   align-items: flex-start; /* Aligns text to the left within the column */
-  padding: 5px;
   color: #CAC9D1;
 }
 
 p.about {
   color: #CAC9D1;
+  padding: 5px;
 }
