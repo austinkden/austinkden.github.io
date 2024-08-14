@@ -61,8 +61,6 @@ div.section {
 
 div.about {
   color: #CAC9D1;
-  display: flex;
-  flex-direction: column;
 }
 
 .about p {
