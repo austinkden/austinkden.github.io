@@ -72,4 +72,6 @@ div.section {
   margin: 0;
   padding: 10px 0;
   color: #CAC9D1;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
 }
