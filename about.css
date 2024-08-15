@@ -62,8 +62,6 @@ div.section {
 .about {
   width: 500px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr;
   border-radius: 10px;
   background-color: #353D49;
   padding: 5px 20px;
@@ -71,7 +69,7 @@ div.section {
 }
 
 .about p {
-  margin: 5px 0px 0px 0px;
+  margin: 0px;
   padding: 0px;
   color: #CAC9D1;
   margin-block-start: 1em;
