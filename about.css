@@ -59,15 +59,17 @@ div.section {
     box-sizing: border-box;
 }
 
-.about {
-  display: flex;
-  flex-direction: column;
-  margin: none;
-  align-items: flex-start; /* Aligns text to the left within the column */
-  color: #CAC9D1;
+.blog {
+  width: 500px;
+  margin: 0 auto;
+  border-radius: 10px;
+  background-color: #353D49;
+  padding: 5px 20px;
+  margin-top: 20px;
 }
 
-p.about {
-  color: #CAC9D1;
-  padding: 5px;
+.blog p {
+  margin: 0;
+  padding: 10px 0;
 }
+
