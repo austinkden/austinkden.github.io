@@ -69,7 +69,7 @@ div.section {
 }
 
 .about p {
-  margin: 0;
+  margin: 5px 0px 0px 0px;
   padding: 0px;
   color: #CAC9D1;
   margin-block-start: 1em;
