@@ -19,7 +19,7 @@ div.surface {
   background-color: #353D49;
 }
 
-div.section:(not.about) {
+div.section {
   border-radius: 10px;
   text-align: center;
   display: flex;
