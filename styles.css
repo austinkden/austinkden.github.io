@@ -106,7 +106,7 @@ button.buttonrow1:hover, button.buttonrow2:hover {
 
 .bannerimagebelow {
   width: 500px;
-  margin-top: 20px;
+  margin: 20px 0px;
   border-radius: 10px;
   border: 3px #8859FF solid;
 }
