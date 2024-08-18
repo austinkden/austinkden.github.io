@@ -30,7 +30,7 @@ a:hover::after {
   width: 100%; /* Expand the underline on hover */
 }
 
-a:hover {
+a:hover:not(namebar) {
   text-decoration: underline;
 }
 
