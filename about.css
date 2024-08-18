@@ -16,14 +16,13 @@ a {
   color: #8859FF;
 }
 
-a::after {
-  content: '';
+.loadbar {
   position: absolute;
   left: 0;
   bottom: 0;
   width: 0;
-  height: 2px; /* Adjust the thickness of the underline */
-  background-color: currentColor; /* Use the current text color for the underline */
+  height: 10px; /* Adjust the thickness of the underline */
+  background-color: #8859FF; /* Use the current text color for the underline */
   transition: width 0.3s ease; /* Adjust the duration and easing function */
 }
 
