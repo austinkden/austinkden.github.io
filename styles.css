@@ -84,11 +84,11 @@ div.buttons {
 }
 
 button.socials {
-  border-radius: 10px 3px 3px 3px;
+  border-radius: 10px 3px 3px 10px;
 }
 
 button.about {
-  border-radius: 3px 10px 3px 3px;
+  border-radius: 3px 10px 10px 3px;
   color: #F2EDFF;
 }
 
