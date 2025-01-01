@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+:root {
+    --color-background: #000000;
+    --color-surface: #1A1D22;
+    --color-mid: #282E36;
+    --color-tile: #353D49;
+    --color-raised: #5B6470;
+    --color-primary: #8859FF;
+    --color-secondary: #4E3291;
+    --color-heading: #F2EDFF;
+    --color-text: #CAC9D1;
+    --color-dull-text: #94949C;
+    --color-success: #3CCB69;
+    --color-alert: #FF9757;
+    --color-destructive: #EB3F56;
+    /* --- */
+    --color-red: #EB3F56;
+    --color-light-red: #F56A71;
+    --color-dark-red: #CC0621;
+    --color-orange: #FF9757;
+    --color-light-orange: #FFB384;
+    --color-dark-orange: #D2611C;
+    --color-yellow: #FFD357;
+    --color-light-yellow: #FFE292;
+    --color-dark-yellow: #D09D0D;
+    --color-yellowgreen: #A8F809;
+    --color-yellowgreen-light: #CEFC73;
+    --color-yellowgreen-dark: #79AD10;
+    --color-green: #45F936;
+    --color-light-green: #83FC79;
+    --color-dark-green: #16A20A;
+    --color-mint: #18FA94;
+    --color-light-mint: #7FFFC5;
+    --color-dark-mint: #11AC66;
+    --color-teal: #20FED5;
+    --color-light-teal: #8FFAE6;
+    --color-dark-teal: #0DA98D;
+    --color-skyblue: #34AEFF;
+    --color-skyblue-light: #93D1FA;
+    --color-skyblue-dark: #186EA8;
+    --color-blue: #4262EE;
+    --color-blue-light: #9AACFA;
+    --color-blue-dark: #0D28A0;
+    --color-purple: #8A1EF0;
+    --color-purple-light: #C995F8;
+    --color-purple-dark: #6314AD;
+    --color-pink: #EA2FF0;
+    --color-pink-light: #F385F7;
+    --color-pink-dark: #A617AB;
+}
+
+* {
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1;
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
+    transition: all 0.4s ease;
+}
+
+::selection {
+    background-color: var(--color-primary);
+    color: var(--color-heading);
+}
+
+body {
+    background-color: var(--color-background);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.surface {
+    background-color: var(--color-surface);
+}
+
+.mid {
+    background-color: var(--color-mid);
+}
+
+.tile {
+    background-color: var(--color-tile);
+}
+
+.raised {
+    background-color: var(--color-raised);
+}
+
+/*  */
+
+div.section.buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    cursor: default;
+    user-select: none;
+}
+
+div.section.buttons button.main {
+    width: 35vw;
+    height: 10vh;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 4vh;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.4s ease;
+}
+
+div.section.buttons button.main:hover {
+    border-radius: 15px;
+}
+
+button.name {
+    color: var(--color-heading);
+    border: 3px solid var(--color-primary);
+    box-shadow: 0px 0px 5px var(--color-primary);
+}
+
+button.name:hover {
+    color: var(--color-primary);
+    box-shadow: 0px 0px 15px var(--color-primary);
+}
+
+a {
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    color: var(--color-primary);
+}
+
+a::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-primary);
+  transform-origin: bottom right;
+  transition: transform 0.2s ease-out;
+}
+
+a:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+button.other {
+    color: var(--color-text);
+    border: 3px solid var(--color-skyblue);
+}
+
+button.other:hover {
+    color: var(--color-skyblue);
+    box-shadow: 0px 0px 15px var(--color-skyblue);
+}
+
+p.body-text {
+    color: var(--color-text);
+    text-wrap: wrap;
+    max-width: 35vw;
+    font-size: 18px;
+    text-align: justify;
+    user-select: text;
+}
+
+p.tree {
+    color: var(--color-text);
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 20px;
+
+    span {
+        color: var(--color-dark-teal);
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 20px;
+    }
+
+    div.section.buttons button.main {
+        width: 80vw;
+        height: 10vh;
+        font-size: 5vh;
+    }
+
+    p.body-text {
+        max-width: 90vw;
+        text-align: center;
+    }
+}
