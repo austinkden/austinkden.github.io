@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,GRAD,ROND@6..144,-10..0,25..151,1..1000,0..100,0..100&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(to bottom right, #8859ff, #1a1d22);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+* {
+    font-family: 'Google Sans Flex', sans-serif;
+}
+
+.container.spin {
+    width: 16vw;
+    height: 16vw;
+    animation: spin 15s linear infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container.spin img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: spin-reverse 15s linear infinite;
+}
+
+.container.twelve-sided-cookie {
+    clip-path: url(assets/shapes/twelve-sided-cookie.svg#clip);
+}
+
+h1 {
+    font-variation-settings: 'ROND' 100, 'wdth' 75;
+    font-weight: 700;
+    font-size: 5vw;
+    color: #f2edff;
+}
+
+p {
+    font-weight: 500;
+    font-size: 2vw;
+    margin-top: 1vh;
+    color: #f2edff;
+    text-align: center;
+}
+
+p.optimization {
+    display: none;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes spin-reverse {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    h1 {
+        font-size: 12vw;
+    }
+
+    p {
+        font-size: 4vw;
+    }
+
+    p.optimization {
+        display: block;
+    }
+}
