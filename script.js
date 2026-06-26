@@ -1,10 +1,7 @@
-// List of similar phrases for the H1 heading when clicked.
-// Feel free to modify this list as needed.
 const phrases = [
     "Working on it...",
     "In progress...",
-    "Cooking some magic...",
-    "Working hard...",
+    "Magic coming...",
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,9 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const shapes = [
         'four-sided-cookie',
+        'pentagon',
         'six-sided-cookie',
         'nine-sided-cookie',
-        'twelve-sided-cookie',
         'sunny'
     ];
 
@@ -270,6 +267,39 @@ document.addEventListener('DOMContentLoaded', () => {
         h1Element.addEventListener('click', () => {
             currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
             h1Element.textContent = phrases[currentPhraseIndex];
+        });
+
+        // Prevent double-click text selection on desktop, while still allowing drag selection
+        h1Element.addEventListener('mousedown', (e) => {
+            if (e.detail > 1) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent double-tap text selection on mobile devices (iOS & Android)
+        let lastTapTime = 0;
+        let isDoubleTap = false;
+
+        h1Element.addEventListener('touchstart', (e) => {
+            const now = Date.now();
+            if (now - lastTapTime < 300) {
+                isDoubleTap = true;
+            } else {
+                isDoubleTap = false;
+            }
+            lastTapTime = now;
+        }, { passive: true });
+
+        document.addEventListener('selectionchange', () => {
+            if (isDoubleTap) {
+                const selection = window.getSelection();
+                if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    if (h1Element.contains(range.commonAncestorContainer)) {
+                        selection.removeAllRanges();
+                    }
+                }
+            }
         });
     }
 });
