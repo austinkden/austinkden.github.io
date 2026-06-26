@@ -16,14 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
         'four-sided-cookie',
         'six-sided-cookie',
         'nine-sided-cookie',
-        'twelve-sided-cookie'
+        'twelve-sided-cookie',
+        'sunny'
     ];
 
     if (wrapper && img) {
         // Pre-sample and align points for all shapes
         const numPoints = 120;
         const shapePoints = {};
-        let currentShapeIndex = 1; // Default to 'six-sided-cookie'
+        let currentShapeIndex = 2; // Default to 'six-sided-cookie'
 
         const alignPoints = (points) => {
             let minD = Infinity;
@@ -124,9 +125,64 @@ document.addEventListener('DOMContentLoaded', () => {
             animationFrameId = requestAnimationFrame(tick);
         };
 
+        let speedTimeoutId = null;
+        let decelerateFrameId = null;
+        const fastMultiplier = 6; // 12x speed during transition (3x faster than previous 4x)
+
+        const temporarySpeedUp = () => {
+            const wrapperAnims = wrapper.getAnimations();
+            const imgAnims = img.getAnimations();
+
+            if (wrapperAnims.length === 0) return;
+
+            // Determine direction
+            const baseDirection = Math.sign(wrapperAnims[0].playbackRate) || 1;
+
+            // Set to fast speed immediately
+            wrapperAnims.forEach(anim => anim.playbackRate = baseDirection * fastMultiplier);
+            imgAnims.forEach(anim => anim.playbackRate = baseDirection * fastMultiplier);
+
+            if (speedTimeoutId) clearTimeout(speedTimeoutId);
+            if (decelerateFrameId) cancelAnimationFrame(decelerateFrameId);
+
+            speedTimeoutId = setTimeout(() => {
+                const startTime = performance.now();
+                const duration = 100; // 100ms deceleration
+
+                const decelerate = (now) => {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // Re-read current direction in case it was reversed during transition
+                    const currentWrapperAnims = wrapper.getAnimations();
+                    if (currentWrapperAnims.length > 0) {
+                        const currentDirection = Math.sign(currentWrapperAnims[0].playbackRate) || 1;
+                        const currentMultiplier = fastMultiplier + (1 - fastMultiplier) * progress;
+                        
+                        currentWrapperAnims.forEach(anim => {
+                            anim.playbackRate = currentDirection * currentMultiplier;
+                        });
+                        
+                        const currentImgAnims = img.getAnimations();
+                        currentImgAnims.forEach(anim => {
+                            anim.playbackRate = currentDirection * currentMultiplier;
+                        });
+                    }
+
+                    if (progress < 1) {
+                        decelerateFrameId = requestAnimationFrame(decelerate);
+                    } else {
+                        decelerateFrameId = null;
+                    }
+                };
+
+                decelerateFrameId = requestAnimationFrame(decelerate);
+            }, 300); // Speed up for 300ms
+        };
+
         const cycleShape = (e) => {
             const now = Date.now();
-            if (now - lastCycleTime < 500) {
+            if (now - lastCycleTime < 250) {
                 e.preventDefault();
                 return;
             }
@@ -138,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (shapePoints[targetShape]) {
                 animatePath(shapePoints[targetShape], 300);
+                temporarySpeedUp();
             }
         };
 
@@ -177,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             longPressTimer = setTimeout(() => {
                 isLongPress = true;
                 cycleShape(e);
-            }, 250); // Decreased delay to 250ms
+            }, 250); 
         });
 
         const cancelPress = () => {
