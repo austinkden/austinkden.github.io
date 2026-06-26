@@ -1,0 +1,218 @@
+// List of similar phrases for the H1 heading when clicked.
+// Feel free to modify this list as needed.
+const phrases = [
+    "Working on it...",
+    "In progress...",
+    "Cooking some magic...",
+    "Working hard...",
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Handle shape cycling and reversing the rotation of the cookie
+    const wrapper = document.querySelector('.pfp-wrapper');
+    const img = document.querySelector('.pfp-wrapper img');
+
+    const shapes = [
+        'four-sided-cookie',
+        'six-sided-cookie',
+        'nine-sided-cookie',
+        'twelve-sided-cookie'
+    ];
+
+    if (wrapper && img) {
+        // Pre-sample and align points for all shapes
+        const numPoints = 120;
+        const shapePoints = {};
+        let currentShapeIndex = 1; // Default to 'six-sided-cookie'
+
+        const alignPoints = (points) => {
+            let minD = Infinity;
+            let startIdx = 0;
+            points.forEach((p, idx) => {
+                const dx = p.x - 0.5;
+                const dy = p.y - 0.0;
+                const d = dx * dx + dy * dy;
+                if (d < minD) {
+                    minD = d;
+                    startIdx = idx;
+                }
+            });
+            return [...points.slice(startIdx), ...points.slice(0, startIdx)];
+        };
+
+        // Create a temporary SVG element in document body to measure path lengths
+        const svgNS = "http://www.w3.org/2000/svg";
+        const tempSvg = document.createElementNS(svgNS, "svg");
+        const tempPath = document.createElementNS(svgNS, "path");
+        tempSvg.appendChild(tempPath);
+        document.body.appendChild(tempSvg);
+
+        shapes.forEach(id => {
+            const clipEl = document.getElementById(id);
+            if (clipEl) {
+                const pathEl = clipEl.querySelector('path');
+                if (pathEl) {
+                    const dAttr = pathEl.getAttribute('d');
+                    tempPath.setAttribute('d', dAttr);
+                    const length = tempPath.getTotalLength();
+                    const points = [];
+                    for (let i = 0; i < numPoints; i++) {
+                        const dist = (i / numPoints) * length;
+                        const p = tempPath.getPointAtLength(dist);
+                        points.push({ x: p.x, y: p.y });
+                    }
+                    shapePoints[id] = alignPoints(points);
+                }
+            }
+        });
+
+        document.body.removeChild(tempSvg);
+
+        // Active clip path element
+        const activePathEl = document.getElementById('active-clip-path');
+        let currentPoints = [];
+
+        // Initialize current points to the default shape (six-sided-cookie)
+        const initialShape = shapes[currentShapeIndex];
+        if (shapePoints[initialShape]) {
+            currentPoints = [...shapePoints[initialShape]];
+            // Set initial path string
+            const d = 'M' + currentPoints.map(p => `${p.x.toFixed(4)} ${p.y.toFixed(4)}`).join(' L') + 'Z';
+            activePathEl.setAttribute('d', d);
+        }
+
+        let longPressTimer = null;
+        let isLongPress = false;
+        let startX = 0;
+        let startY = 0;
+        let lastCycleTime = 0;
+        let animationFrameId = null;
+
+        const animatePath = (targetPoints, duration = 300) => {
+            const startPoints = [...currentPoints];
+            const startTime = performance.now();
+
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+
+            const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+            const tick = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeOutCubic(progress);
+
+                // Interpolate
+                currentPoints = startPoints.map((start, idx) => {
+                    const target = targetPoints[idx];
+                    return {
+                        x: start.x + (target.x - start.x) * eased,
+                        y: start.y + (target.y - start.y) * eased
+                    };
+                });
+
+                // Generate path string
+                const d = 'M' + currentPoints.map(p => `${p.x.toFixed(4)} ${p.y.toFixed(4)}`).join(' L') + 'Z';
+                activePathEl.setAttribute('d', d);
+
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(tick);
+                }
+            };
+
+            animationFrameId = requestAnimationFrame(tick);
+        };
+
+        const cycleShape = (e) => {
+            const now = Date.now();
+            if (now - lastCycleTime < 500) {
+                e.preventDefault();
+                return;
+            }
+            lastCycleTime = now;
+
+            e.preventDefault();
+            currentShapeIndex = (currentShapeIndex + 1) % shapes.length;
+            const targetShape = shapes[currentShapeIndex];
+
+            if (shapePoints[targetShape]) {
+                animatePath(shapePoints[targetShape], 300);
+            }
+        };
+
+        // Click handler (reverses rotation, but ignores long-presses)
+        wrapper.addEventListener('click', (e) => {
+            if (isLongPress) {
+                isLongPress = false;
+                return;
+            }
+
+            // Retrieve all active CSS animations for both the wrapper and the image
+            const wrapperAnims = wrapper.getAnimations();
+            const imgAnims = img.getAnimations();
+
+            // Reverse the direction of both animations to keep them perfectly in sync
+            wrapperAnims.forEach(anim => anim.reverse());
+            imgAnims.forEach(anim => anim.reverse());
+        });
+
+        // Desktop Right-Click (contextmenu)
+        wrapper.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // Mobile Long Press & Desktop Long Left-Click using PointerEvents
+        wrapper.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button !== 0) {
+                if (e.button === 2) {
+                    cycleShape(e);
+                }
+                return;
+            }
+            isLongPress = false;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            longPressTimer = setTimeout(() => {
+                isLongPress = true;
+                cycleShape(e);
+            }, 250); // Decreased delay to 250ms
+        });
+
+        const cancelPress = () => {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        };
+
+        wrapper.addEventListener('pointerup', cancelPress);
+        wrapper.addEventListener('pointercancel', cancelPress);
+        wrapper.addEventListener('pointermove', (e) => {
+            if (longPressTimer) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                if (Math.sqrt(dx * dx + dy * dy) > 10) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+            }
+        });
+    }
+
+    // 2. Handle cycling through the list of H1 phrases on click
+    const h1Element = document.querySelector('h1');
+    if (h1Element) {
+        // Find initial index if the current text is in the array, otherwise default to 0
+        let currentPhraseIndex = phrases.indexOf(h1Element.textContent.trim());
+        if (currentPhraseIndex === -1) {
+            currentPhraseIndex = 0;
+        }
+
+        h1Element.addEventListener('click', () => {
+            currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
+            h1Element.textContent = phrases[currentPhraseIndex];
+        });
+    }
+});
