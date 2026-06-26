@@ -84,6 +84,11 @@ p.optimization {
 }
 
 @media only screen and (max-width: 768px) {
+    .container.spin {
+        height: 48vw;
+        width: 48vw;
+    }
+
     h1 {
         font-size: 12vw;
     }
