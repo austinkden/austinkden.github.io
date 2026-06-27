@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Pre-sample and align points for all shapes
         const numPoints = 120;
         const shapePoints = {};
-        let currentShapeIndex = 2; // Default to 'six-sided-cookie'
+        let currentShapeIndex = 3; // Default to 'nine-sided-cookie'
 
         const alignPoints = (points) => {
             let minD = Infinity;
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const activePathEl = document.getElementById('active-clip-path');
         let currentPoints = [];
 
-        // Initialize current points to the default shape (six-sided-cookie)
+        // Initialize current points to the default shape (nine-sided-cookie)
         const initialShape = shapes[currentShapeIndex];
         if (shapePoints[initialShape]) {
             currentPoints = [...shapePoints[initialShape]];
