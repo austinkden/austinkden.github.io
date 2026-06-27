@@ -195,20 +195,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // Click handler (reverses rotation, but ignores long-presses)
+        const reverseRotation = () => {
+            const wrapperAnims = wrapper.getAnimations();
+            const imgAnims = img.getAnimations();
+            wrapperAnims.forEach(anim => anim.reverse());
+            imgAnims.forEach(anim => anim.reverse());
+        };
+
+        // Click handler (cycles shape, ignores long-presses and non-left-clicks)
         wrapper.addEventListener('click', (e) => {
+            if (e.pointerType === 'mouse' && e.button !== 0) {
+                return;
+            }
             if (isLongPress) {
                 isLongPress = false;
                 return;
             }
-
-            // Retrieve all active CSS animations for both the wrapper and the image
-            const wrapperAnims = wrapper.getAnimations();
-            const imgAnims = img.getAnimations();
-
-            // Reverse the direction of both animations to keep them perfectly in sync
-            wrapperAnims.forEach(anim => anim.reverse());
-            imgAnims.forEach(anim => anim.reverse());
+            cycleShape(e);
         });
 
         // Desktop Right-Click (contextmenu)
@@ -216,12 +219,13 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
         });
 
-        // Mobile Long Press & Desktop Long Left-Click using PointerEvents
+        // Mobile Long Press & Desktop Right-Click / Long Left-Click using PointerEvents
         wrapper.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button === 2) {
+                reverseRotation();
+                return;
+            }
             if (e.pointerType === 'mouse' && e.button !== 0) {
-                if (e.button === 2) {
-                    cycleShape(e);
-                }
                 return;
             }
             isLongPress = false;
@@ -230,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             longPressTimer = setTimeout(() => {
                 isLongPress = true;
-                cycleShape(e);
+                reverseRotation();
             }, 250); 
         });
 
