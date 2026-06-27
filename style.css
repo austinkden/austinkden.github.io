@@ -79,6 +79,37 @@ p.optimization {
 p.hint {
     font-size: 1.5vw;
 }
+.home-buttons {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    z-index: 1;
+}
+
+.home-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #f2edff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.home-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.home-btn:active {
+    background: rgba(255, 255, 255, 0.05);
+}
 
 @media only screen and (max-width: 768px) {
     .pfp-wrapper {
@@ -96,5 +127,15 @@ p.hint {
 
     p.optimization {
         display: block;
+    }
+
+    .home-buttons {
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .home-btn {
+        font-size: 4vw;
+        padding: 2.5vw 5vw;
     }
 }
