@@ -37,7 +37,6 @@ body {
     width: 16vw;
     height: 16vw;
     clip-path: url('#active-clip');
-    animation: rotate-slow 10s linear infinite;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -53,25 +52,6 @@ body {
     object-fit: cover;
     user-select: none;
     border-radius: 50%;
-    animation: counter-rotate-slow 10s linear infinite;
-}
-
-@keyframes rotate-slow {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes counter-rotate-slow {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(-360deg);
-    }
 }
 
 h1 {
@@ -81,6 +61,8 @@ h1 {
     color: #f2edff;
     cursor: pointer;
     text-align: center;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 p {

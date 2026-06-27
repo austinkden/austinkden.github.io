@@ -122,25 +122,35 @@ document.addEventListener('DOMContentLoaded', () => {
             animationFrameId = requestAnimationFrame(tick);
         };
 
+        let rotationAngle = 0;
+        let rotationDirection = 1; // 1 = clockwise, -1 = counter-clockwise
+        let speedMultiplier = 1;
+        let lastTime = performance.now();
+
+        const rotateLoop = (time) => {
+            const dt = (time - lastTime) / 1000;
+            lastTime = time;
+
+            // 36 degrees per second is 360deg over 10 seconds
+            rotationAngle += rotationDirection * 36 * speedMultiplier * dt;
+            rotationAngle = rotationAngle % 360;
+
+            wrapper.style.transform = `rotate(${rotationAngle}deg)`;
+            img.style.transform = `rotate(${-rotationAngle}deg)`;
+
+            requestAnimationFrame(rotateLoop);
+        };
+        requestAnimationFrame(rotateLoop);
+
         let speedTimeoutId = null;
         let decelerateFrameId = null;
-        const fastMultiplier = 6; // 12x speed during transition (3x faster than previous 4x)
+        const fastMultiplier = 6;
 
         const temporarySpeedUp = () => {
-            const wrapperAnims = wrapper.getAnimations();
-            const imgAnims = img.getAnimations();
-
-            if (wrapperAnims.length === 0) return;
-
-            // Determine direction
-            const baseDirection = Math.sign(wrapperAnims[0].playbackRate) || 1;
-
-            // Set to fast speed immediately
-            wrapperAnims.forEach(anim => anim.playbackRate = baseDirection * fastMultiplier);
-            imgAnims.forEach(anim => anim.playbackRate = baseDirection * fastMultiplier);
-
             if (speedTimeoutId) clearTimeout(speedTimeoutId);
             if (decelerateFrameId) cancelAnimationFrame(decelerateFrameId);
+
+            speedMultiplier = fastMultiplier;
 
             speedTimeoutId = setTimeout(() => {
                 const startTime = performance.now();
@@ -150,21 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const elapsed = now - startTime;
                     const progress = Math.min(elapsed / duration, 1);
 
-                    // Re-read current direction in case it was reversed during transition
-                    const currentWrapperAnims = wrapper.getAnimations();
-                    if (currentWrapperAnims.length > 0) {
-                        const currentDirection = Math.sign(currentWrapperAnims[0].playbackRate) || 1;
-                        const currentMultiplier = fastMultiplier + (1 - fastMultiplier) * progress;
-                        
-                        currentWrapperAnims.forEach(anim => {
-                            anim.playbackRate = currentDirection * currentMultiplier;
-                        });
-                        
-                        const currentImgAnims = img.getAnimations();
-                        currentImgAnims.forEach(anim => {
-                            anim.playbackRate = currentDirection * currentMultiplier;
-                        });
-                    }
+                    speedMultiplier = fastMultiplier + (1 - fastMultiplier) * progress;
 
                     if (progress < 1) {
                         decelerateFrameId = requestAnimationFrame(decelerate);
@@ -174,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 decelerateFrameId = requestAnimationFrame(decelerate);
-            }, 300); // Speed up for 300ms
+            }, 300);
         };
 
         const cycleShape = (e) => {
@@ -196,10 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const reverseRotation = () => {
-            const wrapperAnims = wrapper.getAnimations();
-            const imgAnims = img.getAnimations();
-            wrapperAnims.forEach(anim => anim.reverse());
-            imgAnims.forEach(anim => anim.reverse());
+            rotationDirection *= -1;
         };
 
         // Click handler (cycles shape, ignores long-presses and non-left-clicks)
