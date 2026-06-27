@@ -176,12 +176,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const cycleShape = (e) => {
             const now = Date.now();
             if (now - lastCycleTime < 250) {
-                e.preventDefault();
+                if (e) e.preventDefault();
                 return;
             }
             lastCycleTime = now;
 
-            e.preventDefault();
+            if (e) e.preventDefault();
             currentShapeIndex = (currentShapeIndex + 1) % shapes.length;
             const targetShape = shapes[currentShapeIndex];
 
@@ -189,7 +189,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 animatePath(shapePoints[targetShape], 300);
                 temporarySpeedUp();
             }
+
+            // Reset the auto-cycle timer whenever the shape is cycled (either manually or automatically)
+            startAutoCycle();
         };
+
+        let autoCycleInterval = null;
+        const startAutoCycle = () => {
+            stopAutoCycle();
+            // Only auto-cycle shape on the root homepage index.html
+            const isRootHome = document.title === 'Austin Strong';
+            if (!isRootHome) return;
+
+            autoCycleInterval = setInterval(() => {
+                cycleShape();
+            }, 7500);
+        };
+        const stopAutoCycle = () => {
+            if (autoCycleInterval) {
+                clearInterval(autoCycleInterval);
+                autoCycleInterval = null;
+            }
+        };
+
+        // Start the auto shape cycling initially
+        startAutoCycle();
 
         const reverseRotation = () => {
             rotationDirection *= -1;
@@ -228,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             longPressTimer = setTimeout(() => {
                 isLongPress = true;
                 reverseRotation();
-            }, 250); 
+            }, 250);
         });
 
         const cancelPress = () => {
