@@ -87,10 +87,6 @@ p {
     text-align: center;
 }
 
-p.optimization {
-    display: none;
-}
-
 p.hint {
     font-size: clamp(0.75rem, 1.5vw, 0.95rem);
 }
@@ -144,13 +140,8 @@ p.hint {
     }
 
     p,
-    p.optimization,
     p.hint {
         font-size: 4vw;
-    }
-
-    p.optimization {
-        display: block;
     }
 
     .home-buttons {
