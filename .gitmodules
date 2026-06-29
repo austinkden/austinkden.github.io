@@ -1,6 +1,8 @@
 [submodule "schedule"]
 	path = schedule
 	url = https://github.com/austinkden/xyz-schedule.git
+	ignore = dirty
 [submodule "utility"]
 	path = utility
 	url = https://github.com/austinkden/xyz-utility.git
+	ignore = dirty
