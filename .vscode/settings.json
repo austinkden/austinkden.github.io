@@ -1,6 +1,15 @@
 {
     "vscord.status.image.small.debugging.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/debugging.png",
-    "vscord.status.image.small.editing.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/{app_id}.png",
+    "vscord.status.image.small.editing.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/{lang}.png",
     "vscord.status.image.small.idle.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/idle.png",
-    "vscord.status.image.small.notInFile.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/idle.png"
+    "vscord.status.image.small.notInFile.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/idle.png",
+    "vscord.status.image.small.debugging.text": "debugging",
+    "vscord.status.image.small.editing.text": "{LANG}",
+    "vscord.status.image.small.idle.text": "idle",
+    "vscord.status.image.small.notInFile.text": "lazy",
+    "vscord.status.image.small.viewing.text": "{LANG}",
+    "vscord.status.image.large.debugging.text": "{app_name}",
+    "vscord.status.image.large.editing.text": "{app_name}",
+    "vscord.status.image.large.idle.text": "{app_name}",
+    "vscord.status.image.large.viewing.text": "{app_name}"
 }
