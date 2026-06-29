@@ -1,0 +1,167 @@
+/* 
+ * palette.css
+ * Standard Color Palette and Material Design 3 Color Tokens Reference.
+ * Note: Per user request, this file is not linked anywhere, but establishes the 
+ * source-of-truth palette values for all active stylesheets on the website.
+ */
+
+:root {
+    /* -------------------------------------------------------------
+     * Rainbow Colors (Material Tonal Scales 50-950)
+     * ------------------------------------------------------------- */
+
+    /* Red */
+    --color-red-50: #fdf2f3;
+    --color-red-100: #fad7da;
+    --color-red-200: #f5afb5;
+    --color-red-300: #f08791;
+    --color-red-400: #ec616f;
+    --color-red-500: #eb3f56; /* Destructive Base */
+    --color-red-600: #d31c34;
+    --color-red-700: #a41628;
+    --color-red-800: #74101c;
+    --color-red-900: #450911;
+    --color-red-950: #1b0407;
+
+    /* Orange */
+    --color-orange-50: #fff5ef;
+    --color-orange-100: #ffe7d9;
+    --color-orange-200: #ffd0b3;
+    --color-orange-300: #ffb98d;
+    --color-orange-400: #ffa971;
+    --color-orange-500: #ff9757; /* Alert Base */
+    --color-orange-600: #ff7524;
+    --color-orange-700: #f35300;
+    --color-orange-800: #bf4100;
+    --color-orange-900: #8c3000;
+    --color-orange-950: #591e00;
+
+    /* Yellow */
+    --color-yellow-50: #fff9e6;
+    --color-yellow-100: #fff1cc;
+    --color-yellow-200: #ffe199;
+    --color-yellow-300: #ffd266;
+    --color-yellow-400: #ffcb4d;
+    --color-yellow-500: #ffd24d; /* Bright Golden Yellow */
+    --color-yellow-600: #f5b500;
+    --color-yellow-700: #bf8d00;
+    --color-yellow-800: #8f6a00;
+    --color-yellow-900: #5f4600;
+    --color-yellow-950: #2f2300;
+
+    /* Green */
+    --color-green-50: #e5f7eb;
+    --color-green-100: #ccefd6;
+    --color-green-200: #99dfad;
+    --color-green-300: #66cf83;
+    --color-green-400: #46c166;
+    --color-green-500: #3ccb69; /* Success Base */
+    --color-green-600: #299f4f;
+    --color-green-700: #1f793c;
+    --color-green-800: #155229;
+    --color-green-900: #0c2c16;
+    --color-green-950: #06160b;
+
+    /* Blue */
+    --color-blue-50: #e3f2fd;
+    --color-blue-100: #bbdefb;
+    --color-blue-200: #90caf9;
+    --color-blue-300: #64b5f6;
+    --color-blue-400: #42a5f5;
+    --color-blue-500: #2196f3;
+    --color-blue-600: #1e88e5;
+    --color-blue-700: #1976d2;
+    --color-blue-800: #1565c0;
+    --color-blue-900: #0d47a1;
+    --color-blue-950: #05225c;
+
+    /* Indigo */
+    --color-indigo-50: #e8eaf6;
+    --color-indigo-100: #c5cae9;
+    --color-indigo-200: #9fa8da;
+    --color-indigo-300: #7986cb;
+    --color-indigo-400: #5c6bc0;
+    --color-indigo-500: #3f51b5;
+    --color-indigo-600: #3949ab;
+    --color-indigo-700: #303f9f;
+    --color-indigo-800: #283593;
+    --color-indigo-900: #1a237e;
+    --color-indigo-950: #0a0d42;
+
+    /* Violet / Purple */
+    --color-purple-50: #f3e5f5;
+    --color-purple-100: #e1bee7;
+    --color-purple-200: #ce93d8;
+    --color-purple-300: #ba68c8;
+    --color-purple-400: #ab47bc;
+    --color-purple-500: #8859ff; /* Custom signature purple */
+    --color-purple-600: #7e57c2;
+    --color-purple-700: #673ab7;
+    --color-purple-800: #5e35b1;
+    --color-purple-900: #4527a0;
+    --color-purple-950: #150030; /* Signature dark background purple */
+
+    /* Pink */
+    --color-pink-50: #fce4ec;
+    --color-pink-100: #f8bbd0;
+    --color-pink-200: #f48fb1;
+    --color-pink-300: #f06292;
+    --color-pink-400: #ec407a;
+    --color-pink-500: #e91e63;
+    --color-pink-600: #d81b60;
+    --color-pink-700: #c2185b;
+    --color-pink-800: #ad1457;
+    --color-pink-900: #880e4f;
+    --color-pink-950: #4a0025;
+
+    /* Neutrals / Grays */
+    --color-gray-50: #f5f5f7;
+    --color-gray-100: #e6e1e5; /* M3 on-surface light gray */
+    --color-gray-200: #dfdbe5;
+    --color-gray-300: #cac4d0; /* M3 on-surface-variant */
+    --color-gray-400: #938f99; /* M3 outline */
+    --color-gray-500: #7a7a7a;
+    --color-gray-600: #49454f; /* M3 surface-variant divider */
+    --color-gray-700: #2d2a33;
+    --color-gray-800: #1d1b20; /* M3 Dark Theme Surface */
+    --color-gray-900: #141218; /* M3 Dark Theme Background */
+    --color-gray-950: #121016; /* M3 Dark Theme Deep Background */
+
+    /* -------------------------------------------------------------
+     * Material Design 3 Theme Roles (Dark Theme)
+     * ------------------------------------------------------------- */
+    --md-sys-color-primary: var(--color-purple-500);
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: var(--color-purple-900);
+    --md-sys-color-on-primary-container: var(--color-purple-100);
+
+    --md-sys-color-secondary: var(--color-indigo-200);
+    --md-sys-color-on-secondary: var(--color-indigo-800);
+    --md-sys-color-secondary-container: var(--color-indigo-900);
+    --md-sys-color-on-secondary-container: var(--color-indigo-100);
+
+    --md-sys-color-tertiary: var(--color-pink-200);
+    --md-sys-color-on-tertiary: var(--color-pink-800);
+    --md-sys-color-tertiary-container: var(--color-pink-900);
+    --md-sys-color-on-tertiary-container: var(--color-pink-100);
+
+    --md-sys-color-background: var(--color-gray-900);
+    --md-sys-color-on-background: var(--color-gray-100);
+
+    --md-sys-color-surface: var(--color-gray-800);
+    --md-sys-color-on-surface: var(--color-gray-100);
+    --md-sys-color-surface-variant: var(--color-gray-700);
+    --md-sys-color-on-surface-variant: var(--color-gray-300);
+
+    --md-sys-color-outline: var(--color-gray-400);
+    --md-sys-color-outline-variant: var(--color-gray-600);
+
+    --md-sys-color-error: var(--color-red-300);
+    --md-sys-color-on-error: var(--color-red-900);
+    --md-sys-color-error-container: var(--color-red-950);
+    --md-sys-color-on-error-container: var(--color-red-100);
+
+    /* Selection Highlighting */
+    --md-sys-color-highlight: var(--color-purple-500);
+    --md-sys-color-highlight-bg: var(--color-purple-50);
+}
