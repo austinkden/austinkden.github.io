@@ -1,0 +1,6 @@
+[submodule "schedule"]
+	path = schedule
+	url = https://github.com/austinkden/xyz-schedule.git
+[submodule "utility"]
+	path = utility
+	url = https://github.com/austinkden/xyz-utility.git
