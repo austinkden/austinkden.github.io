@@ -1,7 +1,8 @@
 const phrases = [
-    "Working on it...",
-    "In progress...",
-    "Magic coming...",
+    "Austin Strong",
+    "Developer Portal",
+    "Design Playground",
+    "Work Dashboard",
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
