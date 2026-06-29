@@ -34,16 +34,19 @@ body {
 }
 
 .pfp-wrapper {
-    width: 16vw;
-    height: 16vw;
+    width: clamp(100px, 12vw, 150px);
+    height: clamp(100px, 12vw, 150px);
     clip-path: url('#active-clip');
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    -webkit-touch-callout: none; /* Prevents callout sheet on iOS */
-    -webkit-user-select: none;   /* Prevents selection on iOS Safari */
-    user-select: none;           /* Standard user-select property */
+    -webkit-touch-callout: none;
+    /* Prevents callout sheet on iOS */
+    -webkit-user-select: none;
+    /* Prevents selection on iOS Safari */
+    user-select: none;
+    /* Standard user-select property */
 }
 
 .pfp-wrapper img {
@@ -57,7 +60,7 @@ body {
 h1 {
     font-variation-settings: 'ROND' 100, 'wdth' 75;
     font-weight: 700;
-    font-size: 5vw;
+    font-size: clamp(2rem, 5vw, 3.5rem);
     color: #f2edff;
     cursor: pointer;
     text-align: center;
@@ -67,7 +70,7 @@ h1 {
 
 p {
     font-weight: 500;
-    font-size: 2vw;
+    font-size: clamp(0.95rem, 2vw, 1.25rem);
     color: #f2edff;
     text-align: center;
 }
@@ -77,8 +80,9 @@ p.optimization {
 }
 
 p.hint {
-    font-size: 1.5vw;
+    font-size: clamp(0.75rem, 1.5vw, 0.95rem);
 }
+
 .home-buttons {
     display: flex;
     gap: 1.5rem;
@@ -124,7 +128,9 @@ p.hint {
         font-size: 10vw;
     }
 
-    p, p.optimization, p.hint {
+    p,
+    p.optimization,
+    p.hint {
         font-size: 4vw;
     }
 
