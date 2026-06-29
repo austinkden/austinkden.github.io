@@ -1,0 +1,6 @@
+{
+    "vscord.status.image.small.debugging.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/debugging.png",
+    "vscord.status.image.small.editing.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/{app_id}.png",
+    "vscord.status.image.small.idle.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/idle.png",
+    "vscord.status.image.small.notInFile.key": "https://raw.githubusercontent.com/LeonardSSH/vscord/main/assets/icons/idle.png"
+}
