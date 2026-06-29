@@ -1,5 +1,0 @@
-/ --> astrong.xyz (github.com/austinkden/austinkden.github.io)
-/utility --> utility.astrong.xyz (github.com/austinkden/xyz-utility)
-/schedule --> schedule.astrong.xyz (github.com/austinkden/xyz-schedule)
-/utility/time --> utility.astrong.xyz/time (github.com/austinkden/xyz-utility/time)
-/schedule/starbucks --> schedule.astrong.xyz/starbucks (github.com/austinkden/xyz-schedule/starbucks)

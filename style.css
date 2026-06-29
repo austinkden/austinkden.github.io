@@ -65,8 +65,8 @@ body {
 }
 
 .pfp-wrapper {
-    width: clamp(100px, 12vw, 120px);
-    height: clamp(100px, 12vw, 120px);
+    width: clamp(130px, 15.6vw, 156px);
+    height: clamp(130px, 15.6vw, 156px);
     clip-path: url('#active-clip');
     display: flex;
     justify-content: center;
@@ -100,13 +100,26 @@ h1 {
     font-size: 2.5rem;
     font-weight: 800;
     font-variation-settings: 'ROND' 100, 'wdth' 85;
-    color: var(--on-surface);
+    width: fit-content;
+    margin: 0 auto;
+    background: linear-gradient(to right,
+        #ff0000 0%,
+        #ff8c00 17%,
+        #ffe000 33%,
+        #00cc00 50%,
+        #0080ff 67%,
+        #4b00cc 83%,
+        #8b00ff 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: filter 0.2s ease;
 }
 
 h1:hover {
-    color: var(--primary);
+    filter: brightness(1.15);
 }
 
 .home-subtitle {
