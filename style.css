@@ -127,18 +127,7 @@ h1 {
     font-variation-settings: 'ROND' 100, 'wdth' 85;
     width: fit-content;
     margin: 0 auto;
-    background: linear-gradient(to right,
-        #ff0000 0%,
-        #ff8c00 17%,
-        #ffe000 33%,
-        #00cc00 50%,
-        #0080ff 67%,
-        #4b00cc 83%,
-        #8b00ff 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #f2edff;
     cursor: pointer;
     transition: filter 0.2s ease;
 }
@@ -250,4 +239,9 @@ h1:hover {
     .card-left {
         gap: 0.75rem;
     }
+}
+
+.card-left {
+    gap: 0.75rem;
+}
 }
