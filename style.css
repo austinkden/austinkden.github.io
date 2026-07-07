@@ -52,7 +52,7 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--outline);
+    background: rgba(255, 255, 255, 0.16);
     border-radius: 4px;
 }
 
@@ -63,7 +63,7 @@ img {
 /* Firefox Support */
 * {
     scrollbar-width: thin;
-    scrollbar-color: var(--outline) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
 }
 
 .pfp-wrapper,
