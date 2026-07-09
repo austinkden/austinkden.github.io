@@ -364,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function refreshAccessToken() {
+            // use the real spotify accounts endpoint + cors proxy
             const url = `${SPOTIFY_CONFIG.corsProxy}https://accounts.spotify.com/api/token`;
             const body = new URLSearchParams({
                 grant_type: 'refresh_token',
@@ -388,7 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function fetchSpotifyCurrentlyPlaying() {
-            const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+            // hit the actual live spotify player endpoint
+            const url = 'https://api.spotify.com/v1/me/player/currently-playing';
+            const res = await fetch(url, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
