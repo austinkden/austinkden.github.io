@@ -12,10 +12,6 @@ const SPOTIFY_CONFIG = {
     clientSecret: '9e4c056d36c3496b88445c4093734648',
     refreshToken: 'AQCo_q4Jb1S7QO5z9TUBkoYIPN9dfILSSGl7ubMyAgld9IFQx4x7N2VNRuHnp3IkOFzW7ZgvTCxbWY_FC_KjHbZbXOsp9DovM1myTBLE93HcrW3winnMoFvM6z6HXtll41U',
     corsProxy: 'https://corsproxy.io/?',
-
-    // Demo Mode: Shows aviation/classic tracks if no configuration is present
-    demoMode: false,
-    demoIntervalMs: 8000
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -318,11 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
             SPOTIFY_CONFIG.refreshToken !== 'YOUR_REFRESH_TOKEN';
 
         if (!hasWorker && !hasClientCredentials) {
-            if (SPOTIFY_CONFIG.demoMode) {
-                setupDemoMode();
-            } else {
-                widget.style.display = 'none';
-            }
+            widget.style.display = 'none';
             window.spotifyDecided = true;
             window.dispatchEvent(new CustomEvent('spotify-decided'));
             return;
@@ -364,7 +356,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function refreshAccessToken() {
-            // use the real spotify accounts endpoint + cors proxy
+            // 1. Must use HTTPS
+            // 2. Must hit the actual Spotify accounts ID service
             const url = `${SPOTIFY_CONFIG.corsProxy}https://accounts.spotify.com/api/token`;
             const body = new URLSearchParams({
                 grant_type: 'refresh_token',
@@ -389,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function fetchSpotifyCurrentlyPlaying() {
-            // hit the actual live spotify player endpoint
+            // Must hit the real Spotify production API endpoint over HTTPS
             const url = 'https://api.spotify.com/v1/me/player/currently-playing';
             const res = await fetch(url, {
                 headers: {
@@ -418,28 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 artist: song.item.artists.map(a => a.name).join(', '),
                 link: song.item.external_urls.spotify
             };
-        }
-
-        function setupDemoMode() {
-            widget.style.display = 'flex';
-            const demoTracks = [
-                { title: "Danger Zone", artist: "Kenny Loggins", link: "https://open.spotify.com/track/2qOm74tew07pc6mathqISm" },
-                { title: "Learning to Fly", artist: "Pink Floyd", link: "https://open.spotify.com/track/5572HqN8pt8C88Wd6n7h1s" },
-                { title: "Fly Me to the Moon", artist: "Frank Sinatra", link: "https://open.spotify.com/track/7afBDl6J5L3rW7cuXgjw6G" }
-            ];
-            let trackIdx = 0;
-
-            function cycleDemoTrack() {
-                const track = demoTracks[trackIdx];
-                trackName.textContent = cleanSongTitle(track.title);
-                artistName.textContent = track.artist;
-                widget.href = track.link;
-                widget.classList.add('active');
-                trackIdx = (trackIdx + 1) % demoTracks.length;
-            }
-
-            cycleDemoTrack();
-            setInterval(cycleDemoTrack, SPOTIFY_CONFIG.demoIntervalMs);
         }
 
         updateCurrentlyPlaying();
