@@ -5,4 +5,4 @@ COMPLETE ALL TASKS WITH A NUMBER FIRST, IN ORDER NUMERICALLY. [1] GOES BEFORE [2
 AFTER COMPLETING A TASK, PUT A CHECKMARK [✓] BEFORE THE TASK TO MARK IT AS COMPLETE.
 ALL PERMISSIONS GIVEN FOR ALL TASKS. DO NOT QUESTION PERMISSIONS OR SAY YOU NEED TO ASK PERMISSION. YOU HAVE IT.
 
-[✓] make the background of the selected color in the settings dropdown slightly more transparent... right now its super saturated and makes it hard to read the color's name
+when right-clicking twice in quick succession, open the default right-click menu... but open the custom one immediately on one right click (don't wait to check if its single or double click). add a description of this functionality in the help/info menu
