@@ -1,9 +1,22 @@
-const phrases = [
-    "Austin Strong",
-    "Avgeek",
-    "Public Safety Fan",
-    "Barista",
-];
+
+// Spotify API Integration Configuration
+const SPOTIFY_CONFIG = {
+    // Mode 1: Secure Cloudflare Worker URL (Highly Recommended)
+    // Simply deploy the worker (code in spotify.md) and paste its URL below.
+    // Example: "https://your-spotify-worker.your-username.workers.dev"
+    workerUrl: '',
+
+    // Mode 2: Client-side Token Refresh (Alternative)
+    // If you don't use a worker, fill these in and the browser will refresh via a CORS proxy.
+    clientId: '7f0f7769cc3d4846bdb29b07a6e20d6b',
+    clientSecret: '9e4c056d36c3496b88445c4093734648',
+    refreshToken: 'AQCo_q4Jb1S7QO5z9TUBkoYIPN9dfILSSGl7ubMyAgld9IFQx4x7N2VNRuHnp3IkOFzW7ZgvTCxbWY_FC_KjHbZbXOsp9DovM1myTBLE93HcrW3winnMoFvM6z6HXtll41U',
+    corsProxy: 'https://corsproxy.io/?',
+
+    // Demo Mode: Shows aviation/classic tracks if no configuration is present
+    demoMode: false,
+    demoIntervalMs: 8000
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Handle shape cycling and reversing the rotation of the cookie
@@ -15,10 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'pentagon',
         'six-sided-cookie',
         'nine-sided-cookie',
-        'sunny'
+        'sunny',
+        'twelve-sided-cookie'
     ];
 
-    if (wrapper && img) {
+    if (false && wrapper && img) {
         // Pre-sample and align points for all shapes
         const numPoints = 120;
         const shapePoints = {};
@@ -219,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const reverseRotation = () => {
             rotationDirection *= -1;
         };
-
         // Click handler (cycles shape, ignores long-presses and non-left-clicks)
         wrapper.addEventListener('click', (e) => {
             if (e.pointerType === 'mouse' && e.button !== 0) {
@@ -229,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isLongPress = false;
                 return;
             }
+
             cycleShape(e);
         });
 
@@ -277,51 +291,342 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Handle cycling through the list of H1 phrases on click
-    const h1Element = document.querySelector('h1');
-    if (h1Element) {
-        // Find initial index if the current text is in the array, otherwise default to 0
-        let currentPhraseIndex = phrases.indexOf(h1Element.textContent.trim());
-        if (currentPhraseIndex === -1) {
-            currentPhraseIndex = 0;
+
+
+    // Initialize Spotify Widget
+    initSpotifyWidget();
+
+    function initSpotifyWidget() {
+        const widget = document.getElementById('spotify-widget');
+        const trackName = document.getElementById('spotify-track');
+        const artistName = document.getElementById('spotify-artist');
+        
+        if (!widget || !trackName || !artistName) return;
+
+        function cleanSongTitle(title) {
+            if (!title) return '';
+            // Remove (feat. ...), [feat. ...], (ft. ...), [ft. ...] or (feat.), (ft.)
+            return title.replace(/\s*[\(\[](feat|ft)\.?\s*[^)\]]*[\)\]]/gi, '').trim();
         }
 
-        h1Element.addEventListener('click', () => {
-            currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
-            h1Element.textContent = phrases[currentPhraseIndex];
-        });
+        let accessToken = '';
 
-        // Prevent double-click text selection on desktop, while still allowing drag selection
-        h1Element.addEventListener('mousedown', (e) => {
-            if (e.detail > 1) {
-                e.preventDefault();
-            }
-        });
+        const hasWorker = !!SPOTIFY_CONFIG.workerUrl;
+        const hasClientCredentials = 
+            SPOTIFY_CONFIG.clientId !== 'YOUR_CLIENT_ID' && 
+            SPOTIFY_CONFIG.clientSecret !== 'YOUR_CLIENT_SECRET' && 
+            SPOTIFY_CONFIG.refreshToken !== 'YOUR_REFRESH_TOKEN';
 
-        // Prevent double-tap text selection on mobile devices (iOS & Android)
-        let lastTapTime = 0;
-        let isDoubleTap = false;
-
-        h1Element.addEventListener('touchstart', (e) => {
-            const now = Date.now();
-            if (now - lastTapTime < 300) {
-                isDoubleTap = true;
+        if (!hasWorker && !hasClientCredentials) {
+            if (SPOTIFY_CONFIG.demoMode) {
+                setupDemoMode();
             } else {
-                isDoubleTap = false;
+                widget.style.display = 'none';
             }
-            lastTapTime = now;
-        }, { passive: true });
+            window.spotifyDecided = true;
+            window.dispatchEvent(new CustomEvent('spotify-decided'));
+            return;
+        }
 
-        document.addEventListener('selectionchange', () => {
-            if (isDoubleTap) {
-                const selection = window.getSelection();
-                if (selection && selection.rangeCount > 0) {
-                    const range = selection.getRangeAt(0);
-                    if (h1Element.contains(range.commonAncestorContainer)) {
-                        selection.removeAllRanges();
+        async function updateCurrentlyPlaying() {
+            try {
+                let data;
+                if (hasWorker) {
+                    const res = await fetch(SPOTIFY_CONFIG.workerUrl);
+                    data = await res.json();
+                } else {
+                    if (!accessToken) {
+                        await refreshAccessToken();
                     }
+                    data = await fetchSpotifyCurrentlyPlaying();
+                }
+
+                if (data && data.isPlaying) {
+                    trackName.textContent = cleanSongTitle(data.title);
+                    artistName.textContent = data.artist;
+                    widget.href = data.link || '#';
+                    widget.classList.add('active');
+                    widget.style.display = 'flex';
+                } else {
+                    trackName.textContent = '';
+                    artistName.textContent = '';
+                    widget.href = '#';
+                    widget.classList.remove('active');
+                    widget.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Spotify API Error:', err);
+                accessToken = ''; // Reset token on error
+            } finally {
+                window.spotifyDecided = true;
+                window.dispatchEvent(new CustomEvent('spotify-decided'));
+            }
+        }
+
+        async function refreshAccessToken() {
+            const url = `${SPOTIFY_CONFIG.corsProxy}https://accounts.spotify.com/api/token`;
+            const body = new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: SPOTIFY_CONFIG.refreshToken
+            });
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Basic ' + btoa(`${SPOTIFY_CONFIG.clientId}:${SPOTIFY_CONFIG.clientSecret}`)
+                },
+                body: body
+            });
+
+            if (!res.ok) {
+                throw new Error(`Failed to refresh Spotify access token: ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            accessToken = data.access_token;
+        }
+
+        async function fetchSpotifyCurrentlyPlaying() {
+            const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (res.status === 204) {
+                return { isPlaying: false };
+            }
+
+            if (res.status === 401) {
+                accessToken = '';
+                await refreshAccessToken();
+                return fetchSpotifyCurrentlyPlaying();
+            }
+
+            if (!res.ok) {
+                throw new Error(`Failed to fetch currently playing: ${res.statusText}`);
+            }
+
+            const song = await res.json();
+            return {
+                isPlaying: song.is_playing,
+                title: song.item.name,
+                artist: song.item.artists.map(a => a.name).join(', '),
+                link: song.item.external_urls.spotify
+            };
+        }
+
+        function setupDemoMode() {
+            widget.style.display = 'flex';
+            const demoTracks = [
+                { title: "Danger Zone", artist: "Kenny Loggins", link: "https://open.spotify.com/track/2qOm74tew07pc6mathqISm" },
+                { title: "Learning to Fly", artist: "Pink Floyd", link: "https://open.spotify.com/track/5572HqN8pt8C88Wd6n7h1s" },
+                { title: "Fly Me to the Moon", artist: "Frank Sinatra", link: "https://open.spotify.com/track/7afBDl6J5L3rW7cuXgjw6G" }
+            ];
+            let trackIdx = 0;
+
+            function cycleDemoTrack() {
+                const track = demoTracks[trackIdx];
+                trackName.textContent = cleanSongTitle(track.title);
+                artistName.textContent = track.artist;
+                widget.href = track.link;
+                widget.classList.add('active');
+                trackIdx = (trackIdx + 1) % demoTracks.length;
+            }
+
+            cycleDemoTrack();
+            setInterval(cycleDemoTrack, SPOTIFY_CONFIG.demoIntervalMs);
+        }
+
+        updateCurrentlyPlaying();
+        setInterval(updateCurrentlyPlaying, 10000);
+    }
+
+    // Initialize Accent Theme Switcher
+    initThemeSwitcher();
+
+    // Speed up Spotify equalizer bars on hover without resetting their position
+    const spotifyCard = document.querySelector('.spotify-card');
+    if (spotifyCard) {
+        spotifyCard.addEventListener('mouseenter', () => {
+            spotifyCard.querySelectorAll('.eq-bar').forEach(bar => {
+                if (bar.getAnimations) {
+                    bar.getAnimations().forEach(anim => {
+                        anim.playbackRate = 1.75;
+                    });
+                }
+            });
+        });
+        spotifyCard.addEventListener('mouseleave', () => {
+            spotifyCard.querySelectorAll('.eq-bar').forEach(bar => {
+                if (bar.getAnimations) {
+                    bar.getAnimations().forEach(anim => {
+                        anim.playbackRate = 1.0;
+                    });
+                }
+            });
+        });
+    }
+
+    function initThemeSwitcher() {
+        const accentSelect = document.getElementById('accent-select');
+        if (!accentSelect) return;
+
+        const trigger = accentSelect.querySelector('.select-trigger');
+        const triggerText = accentSelect.querySelector('.select-trigger-text');
+        const options = accentSelect.querySelectorAll('.select-option');
+
+        const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
+
+        // Set initial selected value text and active style
+        const activeOption = accentSelect.querySelector(`.select-option[data-value="${savedAccent}"]`);
+        if (activeOption) {
+            triggerText.textContent = activeOption.textContent;
+            triggerText.style.color = window.getComputedStyle(activeOption).color;
+            activeOption.classList.add('selected');
+        }
+
+        // Toggle open/close on click
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            accentSelect.classList.toggle('open');
+        });
+
+        // Click handler for options
+        options.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const themeName = option.getAttribute('data-value');
+                
+                options.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                
+                triggerText.textContent = option.textContent;
+                triggerText.style.color = window.getComputedStyle(option).color;
+                
+                localStorage.setItem('astrong_accent', themeName);
+                const currentMode = localStorage.getItem('astrong_mode') || 'dark';
+                
+                if (window.applyTheme) {
+                    window.applyTheme(themeName, currentMode);
+                }
+                
+                accentSelect.classList.remove('open');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            accentSelect.classList.remove('open');
+        });
+    }
+
+    function initSettingsModal() {
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeBtn = document.getElementById('settings-close-btn');
+        const overlay = settingsModal ? settingsModal.querySelector('.settings-modal-overlay') : null;
+        const themeTogglePill = document.getElementById('theme-toggle-pill');
+
+        if (!settingsBtn || !settingsModal) return;
+
+        function openModal() {
+            settingsModal.classList.add('active');
+            settingsModal.setAttribute('aria-hidden', 'false');
+            
+            // Re-update select trigger color to ensure it matches active stylesheet variables
+            const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
+            const activeOption = document.querySelector(`#accent-select .select-option[data-value="${savedAccent}"]`);
+            const triggerText = document.querySelector('#accent-select .select-trigger-text');
+            if (activeOption && triggerText) {
+                triggerText.style.color = window.getComputedStyle(activeOption).color;
+            }
+        }
+
+        function closeModal() {
+            settingsModal.classList.remove('active');
+            settingsModal.setAttribute('aria-hidden', 'true');
+        }
+
+        settingsBtn.addEventListener('click', openModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (overlay) overlay.addEventListener('click', closeModal);
+
+        // Escape key to close the modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (settingsModal.classList.contains('active')) {
+                    closeModal();
+                    e.stopImmediatePropagation();
                 }
             }
-        });
+        }, true);
+
+        // Initialize theme-toggle-pill state
+        const savedMode = localStorage.getItem('astrong_mode') || 'dark';
+        if (themeTogglePill) {
+            themeTogglePill.setAttribute('data-active', savedMode);
+
+            themeTogglePill.addEventListener('click', () => {
+                const currentMode = localStorage.getItem('astrong_mode') || 'dark';
+                const nextMode = currentMode === 'dark' ? 'light' : 'dark';
+                
+                localStorage.setItem('astrong_mode', nextMode);
+                themeTogglePill.setAttribute('data-active', nextMode);
+
+                // Apply theme changes
+                const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
+                if (window.applyTheme) {
+                    window.applyTheme(savedAccent, nextMode);
+                }
+
+                // Update trigger text color if dropdown exists (e.g. white accent changes color)
+                const activeOption = document.querySelector(`#accent-select .select-option[data-value="${savedAccent}"]`);
+                const triggerText = document.querySelector('#accent-select .select-trigger-text');
+                if (activeOption && triggerText) {
+                    setTimeout(() => {
+                        triggerText.style.color = window.getComputedStyle(activeOption).color;
+                    }, 50);
+                }
+            });
+        }
+    }
+
+    // 3. Initialize Modals
+    initHelpModal();
+    initSettingsModal();
+
+    function initHelpModal() {
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const closeBtn = document.getElementById('help-close-btn');
+        const overlay = helpModal ? helpModal.querySelector('.help-modal-overlay') : null;
+
+        if (!helpBtn || !helpModal) return;
+
+        function openModal() {
+            helpModal.classList.add('active');
+            helpModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeModal() {
+            helpModal.classList.remove('active');
+            helpModal.setAttribute('aria-hidden', 'true');
+        }
+
+        helpBtn.addEventListener('click', openModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (overlay) overlay.addEventListener('click', closeModal);
+
+        // Escape key to close the modal, using capture phase to run before universal.js back action
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (helpModal.classList.contains('active')) {
+                    closeModal();
+                    e.stopImmediatePropagation();
+                }
+            }
+        }, true);
     }
 });
