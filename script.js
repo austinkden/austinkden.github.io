@@ -321,8 +321,13 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 let data;
                 if (hasWorker) {
-                    const res = await fetch(SPOTIFY_CONFIG.workerUrl);
-                    data = await res.json();
+                    // Worker returns a refreshed access token — use it to call Spotify directly
+                    if (!accessToken) {
+                        const tokenRes = await fetch(SPOTIFY_CONFIG.workerUrl);
+                        const tokenData = await tokenRes.json();
+                        accessToken = tokenData.access_token;
+                    }
+                    data = await fetchSpotifyCurrentlyPlaying();
                 } else {
                     if (!accessToken) {
                         await refreshAccessToken();
@@ -393,7 +398,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.status === 401) {
                 accessToken = '';
-                await refreshAccessToken();
+                if (hasWorker) {
+                    const tokenRes = await fetch(SPOTIFY_CONFIG.workerUrl);
+                    const tokenData = await tokenRes.json();
+                    accessToken = tokenData.access_token;
+                } else {
+                    await refreshAccessToken();
+                }
                 return fetchSpotifyCurrentlyPlaying();
             }
 
