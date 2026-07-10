@@ -179,11 +179,11 @@
         const key = e.key.toLowerCase();
         
         if (key === 'h') {
-            window.location.href = '/';
+            window.location.href = 'https://astrong.xyz';
         } else if (key === 's') {
-            window.location.href = '/schedule/';
+            window.location.href = 'https://schedule.astrong.xyz';
         } else if (key === 'u') {
-            window.location.href = '/utility/';
+            window.location.href = 'https://utility.astrong.xyz';
         } else if (e.key === 'Escape') {
             const backLink = document.querySelector('.back-link');
             if (backLink) {
@@ -613,9 +613,9 @@
             menu.innerHTML = '';
 
             const items = [
-                { label: 'Home', action: () => window.location.href = '/' },
-                { label: 'Schedule', action: () => window.location.href = '/schedule/' },
-                { label: 'Utilities', action: () => window.location.href = '/utility/' }
+                { label: 'Home', action: () => window.location.href = 'https://astrong.xyz' },
+                { label: 'Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz' },
+                { label: 'Utilities', action: () => window.location.href = 'https://utility.astrong.xyz' }
             ];
 
             const selection = window.getSelection();
