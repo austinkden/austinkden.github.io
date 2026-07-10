@@ -2,16 +2,13 @@
 // Spotify API Integration Configuration
 const SPOTIFY_CONFIG = {
     // Mode 1: Secure Cloudflare Worker URL (Highly Recommended)
-    // Simply deploy the worker (code in spotify.md) and paste its URL below.
-    // Example: "https://your-spotify-worker.your-username.workers.dev"
-    workerUrl: '',
+    workerUrl: 'https://spotify-proxy.d-dolphin-9160.workers.dev/', // paste your real cloudflare link here
 
     // Mode 2: Client-side Token Refresh (Alternative)
-    // If you don't use a worker, fill these in and the browser will refresh via a CORS proxy.
     clientId: '7f0f7769cc3d4846bdb29b07a6e20d6b',
-    clientSecret: '9e4c056d36c3496b88445c4093734648',
-    refreshToken: 'AQCo_q4Jb1S7QO5z9TUBkoYIPN9dfILSSGl7ubMyAgld9IFQx4x7N2VNRuHnp3IkOFzW7ZgvTCxbWY_FC_KjHbZbXOsp9DovM1myTBLE93HcrW3winnMoFvM6z6HXtll41U',
-    corsProxy: 'https://corsproxy.io/?',
+    clientSecret: '', // clear this
+    refreshToken: '', // clear this
+    corsProxy: '',    // clear this
 };
 
 document.addEventListener('DOMContentLoaded', () => {
