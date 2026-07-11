@@ -1,8 +1,0 @@
-TO-DO LIST FOR AI
-TASKS ARE SEPARATED BY A LINE BREAK.
-COMPLETE ONE TASK AT A TIME.
-COMPLETE ALL TASKS WITH A NUMBER FIRST, IN ORDER NUMERICALLY. [1] GOES BEFORE [2] AND SO ON. TASKS WITHOUT A NUMBER SHOULD BE DONE LAST.
-AFTER COMPLETING A TASK, PUT A CHECKMARK [✓] BEFORE THE TASK TO MARK IT AS COMPLETE.
-ALL PERMISSIONS GIVEN FOR ALL TASKS. DO NOT QUESTION PERMISSIONS OR SAY YOU NEED TO ASK PERMISSION. YOU HAVE IT.
-
-when right-clicking twice in quick succession, open the default right-click menu... but open the custom one immediately on one right click (don't wait to check if its single or double click). add a description of this functionality in the help/info menu
