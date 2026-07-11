@@ -879,7 +879,7 @@ h1 {
 /* Help Modal Footer Styling */
 .help-modal-footer {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem 1.5rem 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -896,6 +896,33 @@ h1 {
     opacity: 0.7;
     user-select: none;
     -webkit-user-select: none;
+}
+
+.github-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: 1px solid var(--outline, #49454f);
+    border-radius: 8px;
+    background: transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.github-btn:hover {
+    background: var(--surface-variant, #2d2a33);
+    border-color: var(--primary, #8859ff);
+    color: #ffffff;
+}
+
+.github-btn svg {
+    display: block;
 }
 
 @media (max-width: 768px) {

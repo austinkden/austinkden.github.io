@@ -606,7 +606,15 @@
             }
         }
 
+        let lastRightClickTime = 0;
         window.addEventListener('contextmenu', (e) => {
+            const now = Date.now();
+            if (now - lastRightClickTime < 600) {
+                menu.style.display = 'none';
+                lastRightClickTime = 0;
+                return;
+            }
+            lastRightClickTime = now;
             e.preventDefault();
 
             // Clear the menu content so we can rebuild dynamically
