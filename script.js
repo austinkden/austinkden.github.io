@@ -460,6 +460,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const options = accentSelect.querySelectorAll('.select-option');
 
         const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
+        const savedMode = localStorage.getItem('astrong_mode') || 'dark';
+
+        const updateWhiteOptionLabel = (mode) => {
+            const whiteOption = accentSelect.querySelector('.option-white');
+            if (whiteOption) {
+                whiteOption.textContent = mode === 'light' ? 'Black' : 'White';
+            }
+        };
+
+        // Initialize label first
+        updateWhiteOptionLabel(savedMode);
 
         // Set initial selected value text and active style
         const activeOption = accentSelect.querySelector(`.select-option[data-value="${savedAccent}"]`);
@@ -563,10 +574,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.applyTheme(savedAccent, nextMode);
                 }
 
-                // Update trigger text color if dropdown exists (e.g. white accent changes color)
+                // Update the white option label dynamically
+                const accentSelect = document.getElementById('accent-select');
+                if (accentSelect) {
+                    const whiteOption = accentSelect.querySelector('.option-white');
+                    if (whiteOption) {
+                        whiteOption.textContent = nextMode === 'light' ? 'Black' : 'White';
+                    }
+                }
+
+                // Update trigger text and color if dropdown exists (e.g. white/black changes text and color)
                 const activeOption = document.querySelector(`#accent-select .select-option[data-value="${savedAccent}"]`);
                 const triggerText = document.querySelector('#accent-select .select-trigger-text');
                 if (activeOption && triggerText) {
+                    triggerText.textContent = activeOption.textContent;
                     setTimeout(() => {
                         triggerText.style.color = window.getComputedStyle(activeOption).color;
                     }, 50);

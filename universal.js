@@ -184,6 +184,8 @@
             window.location.href = 'https://schedule.astrong.xyz';
         } else if (key === 'u') {
             window.location.href = 'https://utility.astrong.xyz';
+        } else if (key === 'a') {
+            window.location.href = 'https://astrong.xyz/about';
         } else if (e.key === 'Escape') {
             const backLink = document.querySelector('.back-link');
             if (backLink) {
@@ -623,7 +625,8 @@
             const items = [
                 { label: 'Home', action: () => window.location.href = 'https://astrong.xyz' },
                 { label: 'Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz' },
-                { label: 'Utilities', action: () => window.location.href = 'https://utility.astrong.xyz' }
+                { label: 'Utilities', action: () => window.location.href = 'https://utility.astrong.xyz' },
+                { label: 'About', action: () => window.location.href = 'https://astrong.xyz/about' }
             ];
 
             const selection = window.getSelection();

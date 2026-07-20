@@ -6,3 +6,7 @@
 	path = utility
 	url = https://github.com/austinkden/xyz-utility.git
 	ignore = dirty
+[submodule "about"]
+	path = about
+	url = https://github.com/austinkden/xyz-about.git
+	ignore = dirty
