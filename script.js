@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const shapes = [
         'four-sided-cookie',
-        'arrow',
         'pentagon',
         'six-sided-cookie',
         'nine-sided-cookie',
