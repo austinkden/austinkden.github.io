@@ -194,6 +194,10 @@ h1 {
     border-color: var(--primary-container);
 }
 
+:root.light-mode .portal-card:hover .card-icon {
+    color: var(--primary);
+}
+
 .card-text {
     display: flex;
     flex-direction: column;

@@ -71,6 +71,10 @@ body {
     color: #ffffff;
 }
 
+:root.light-mode .pfp-icon-content svg {
+    color: var(--primary);
+}
+
 /* Portal Layout matching other portals */
 .portal-container {
     width: 100%;
