@@ -135,3 +135,5 @@ Profile pictures on the website use a dynamic `clip-path` mask loaded from a hid
 - `six-sided-cookie`
 - `sunny`
 - `pentagon`
+- `twelve-sided-cookie`
+- `arrow`
