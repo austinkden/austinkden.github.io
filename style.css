@@ -776,7 +776,9 @@ h1 {
 
 /* Custom Dropdown Option Accent Colors */
 .option-red { color: #eb3f56 !important; }
+:root.light-mode .option-red { color: #b32638 !important; }
 .option-orange { color: #ff7524 !important; }
+:root.light-mode .option-orange { color: #bf4100 !important; }
 .option-yellow { color: #f5b500 !important; }
 :root.light-mode .option-yellow { color: #bf8d00 !important; }
 .option-green { color: #00c853 !important; }
@@ -784,6 +786,7 @@ h1 {
 .option-blue { color: #00b0ff !important; }
 :root.light-mode .option-blue { color: #1976d2 !important; }
 .option-purple { color: #8859ff !important; }
+:root.light-mode .option-purple { color: #6536ec !important; }
 .option-white { color: #ffffff !important; }
 :root.light-mode .option-white { color: #121016 !important; }
 

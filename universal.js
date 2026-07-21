@@ -758,7 +758,7 @@
                     
                     btn.addEventListener('mouseenter', () => {
                         btn.style.background = 'var(--surface-variant, #2d2a33)';
-                        btn.style.color = '#ffffff';
+                        btn.style.color = 'var(--on-surface, #ffffff)';
                     });
                     btn.addEventListener('mouseleave', () => {
                         btn.style.background = 'transparent';
