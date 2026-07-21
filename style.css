@@ -190,12 +190,8 @@ h1 {
 
 .portal-card:hover .card-icon {
     background: var(--primary-container);
-    color: #ffffff;
+    color: var(--on-primary-container, #ffffff);
     border-color: var(--primary-container);
-}
-
-:root.light-mode .portal-card:hover .card-icon {
-    color: var(--primary);
 }
 
 .card-text {

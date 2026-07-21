@@ -159,22 +159,22 @@
 
         const themes = {
             dark: {
-                red: { primary: '#eb3f56', container: '#801323', onPrimary: '#ffffff' },
-                orange: { primary: '#ff7524', container: '#8c3000', onPrimary: '#ffffff' },
-                yellow: { primary: '#f5b500', container: '#5f4600', onPrimary: '#ffffff' },
-                green: { primary: '#00c853', container: '#1b5e20', onPrimary: '#ffffff' },
-                blue: { primary: '#00b0ff', container: '#005780', onPrimary: '#ffffff' },
-                purple: { primary: '#8859ff', container: '#4527a0', onPrimary: '#ffffff' },
-                white: { primary: '#ffffff', container: '#444444', onPrimary: '#121016' }
+                red: { primary: '#eb3f56', container: '#801323', onPrimary: '#ffffff', onPrimaryContainer: '#ffffff' },
+                orange: { primary: '#ff7524', container: '#8c3000', onPrimary: '#ffffff', onPrimaryContainer: '#ffffff' },
+                yellow: { primary: '#f5b500', container: '#5f4600', onPrimary: '#ffffff', onPrimaryContainer: '#ffffff' },
+                green: { primary: '#00c853', container: '#1b5e20', onPrimary: '#ffffff', onPrimaryContainer: '#ffffff' },
+                blue: { primary: '#00b0ff', container: '#005780', onPrimary: '#ffffff', onPrimaryContainer: '#ffffff' },
+                purple: { primary: '#8859ff', container: '#4527a0', onPrimary: '#ffffff', onPrimaryContainer: '#ffffff' },
+                white: { primary: '#ffffff', container: '#444444', onPrimary: '#121016', onPrimaryContainer: '#ffffff' }
             },
             light: {
-                red: { primary: '#eb3f56', container: '#fad7da', onPrimary: '#ffffff' },
-                orange: { primary: '#ff7524', container: '#ffd0b3', onPrimary: '#ffffff' },
-                yellow: { primary: '#bf8d00', container: '#ffe199', onPrimary: '#ffffff' },
-                green: { primary: '#1f793c', container: '#ccefd6', onPrimary: '#ffffff' },
-                blue: { primary: '#1976d2', container: '#bbdefb', onPrimary: '#ffffff' },
-                purple: { primary: '#8859ff', container: '#f2edff', onPrimary: '#ffffff' },
-                white: { primary: '#1d1b20', container: '#e6e1e5', onPrimary: '#ffffff' }
+                red: { primary: '#b32638', container: '#fce8ea', onPrimary: '#ffffff', onPrimaryContainer: '#74101c' },
+                orange: { primary: '#ad4b03', container: '#fff0e6', onPrimary: '#ffffff', onPrimaryContainer: '#591e00' },
+                yellow: { primary: '#8f6a00', container: '#fff5cc', onPrimary: '#ffffff', onPrimaryContainer: '#2f2300' },
+                green: { primary: '#155229', container: '#e5f7eb', onPrimary: '#ffffff', onPrimaryContainer: '#06160b' },
+                blue: { primary: '#0b579c', container: '#e3f2fd', onPrimary: '#ffffff', onPrimaryContainer: '#05225c' },
+                purple: { primary: '#6536ec', container: '#f2edff', onPrimary: '#ffffff', onPrimaryContainer: '#21005d' },
+                white: { primary: '#1d1b20', container: '#e6e1e5', onPrimary: '#ffffff', onPrimaryContainer: '#1d1b20' }
             }
         };
         const theme = (themes[mode] && themes[mode][accent]) ? themes[mode][accent] : themes['dark']['purple'];
@@ -182,6 +182,7 @@
             document.documentElement.style.setProperty('--primary', theme.primary);
             document.documentElement.style.setProperty('--primary-container', theme.container);
             document.documentElement.style.setProperty('--on-primary', theme.onPrimary);
+            document.documentElement.style.setProperty('--on-primary-container', theme.onPrimaryContainer);
         }
 
         // Sync to cookies and localStorage
