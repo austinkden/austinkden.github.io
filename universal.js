@@ -110,12 +110,33 @@
         }, 3000);
     })();
     
+    // Cookie helpers
+    function getThemeCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    function setThemeCookie(name, val) {
+        const hostname = window.location.hostname;
+        const domain = hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
+        document.cookie = `${name}=${val}; path=/${domain}; max-age=31536000; SameSite=Lax`;
+    }
+
     // 1. Theme Loader
-    const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
-    const savedMode = localStorage.getItem('astrong_mode') || 'dark';
+    const savedAccent = getThemeCookie('astrong_accent') || localStorage.getItem('astrong_accent') || 'purple';
+    const savedMode = getThemeCookie('astrong_mode') || localStorage.getItem('astrong_mode') || 'dark';
     applyTheme(savedAccent, savedMode);
 
     function applyTheme(accent, mode) {
+        if (!accent) {
+            accent = getThemeCookie('astrong_accent') || localStorage.getItem('astrong_accent') || 'purple';
+        }
+        if (!mode) {
+            mode = getThemeCookie('astrong_mode') || localStorage.getItem('astrong_mode') || 'dark';
+        }
+
         if (mode === 'light') {
             document.documentElement.classList.add('light-mode');
             document.documentElement.style.setProperty('--background', '#fbf8fd');
@@ -161,6 +182,24 @@
             document.documentElement.style.setProperty('--primary', theme.primary);
             document.documentElement.style.setProperty('--primary-container', theme.container);
             document.documentElement.style.setProperty('--on-primary', theme.onPrimary);
+        }
+
+        // Sync to cookies and localStorage
+        try {
+            if (localStorage.getItem('astrong_accent') !== accent) {
+                localStorage.setItem('astrong_accent', accent);
+            }
+            if (localStorage.getItem('astrong_mode') !== mode) {
+                localStorage.setItem('astrong_mode', mode);
+            }
+            if (getThemeCookie('astrong_accent') !== accent) {
+                setThemeCookie('astrong_accent', accent);
+            }
+            if (getThemeCookie('astrong_mode') !== mode) {
+                setThemeCookie('astrong_mode', mode);
+            }
+        } catch (e) {
+            console.error('Error syncing theme settings:', e);
         }
     }
     window.applyTheme = applyTheme;
