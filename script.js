@@ -341,16 +341,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     widget.href = data.link || '#';
                     widget.classList.add('active');
                     widget.style.display = 'flex';
+                    window.isSpotifyPlaying = true;
                 } else {
                     trackName.textContent = '';
                     artistName.textContent = '';
                     widget.href = '#';
                     widget.classList.remove('active');
                     widget.style.display = 'none';
+                    window.isSpotifyPlaying = false;
+                }
+                if (window.updateLiveStatus) {
+                    window.updateLiveStatus();
                 }
             } catch (err) {
                 console.error('Spotify API Error:', err);
                 accessToken = ''; // Reset token on error
+                window.isSpotifyPlaying = false;
+                if (window.updateLiveStatus) {
+                    window.updateLiveStatus();
+                }
             } finally {
                 window.spotifyDecided = true;
                 window.dispatchEvent(new CustomEvent('spotify-decided'));
@@ -596,9 +605,161 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 3. Initialize Modals
+    // 3. Initialize Modals & Live Status Bar
     initHelpModal();
     initSettingsModal();
+    initLiveStatusBar();
+
+    function initLiveStatusBar() {
+        const statusBar = document.getElementById('live-status-bar');
+        const statusText = document.getElementById('live-status-text');
+
+        if (!statusBar || !statusText) return;
+
+        const apiKey = 'AIzaSyBIwrZ7LnEPCEGs5CM_Pq61YtGZ3jHVQHY';
+        const calendarId = 'austinstrong500@gmail.com';
+
+        // Fallback schedule data in case API key access is blocked or offline
+        const FALLBACK_STARBUCKS_SCHEDULE = {
+            "2026-06-30": { start: "11:15", end: "15:15" },
+            "2026-07-02": { start: "12:15", end: "16:15" },
+            "2026-07-03": { start: "13:30", end: "17:45" },
+            "2026-07-08": { start: "11:00", end: "15:00" },
+            "2026-07-09": { start: "10:00", end: "14:00" },
+            "2026-07-10": { start: "14:00", end: "20:30" },
+            "2026-07-12": { start: "09:00", end: "15:15" },
+            "2026-07-14": { start: "08:30", end: "12:30" },
+            "2026-07-15": { start: "13:00", end: "17:30" },
+            "2026-07-16": { start: "15:15", end: "19:15" },
+            "2026-07-18": { start: "07:45", end: "12:30" },
+            "2026-07-19": { start: "12:00", end: "16:00" },
+            "2026-07-21": { start: "10:00", end: "17:00" },
+            "2026-07-22": { start: "12:00", end: "16:00" },
+            "2026-07-23": { start: "10:45", end: "16:00" },
+            "2026-07-24": { start: "10:45", end: "14:45" },
+            "2026-07-26": { start: "08:00", end: "12:45" },
+            "2026-07-28": { start: "12:00", end: "20:30" },
+            "2026-07-29": { start: "07:15", end: "12:00" },
+            "2026-07-30": { start: "07:00", end: "13:30" },
+            "2026-07-31": { start: "12:45", end: "19:15" },
+            "2026-08-02": { start: "11:00", end: "18:30" }
+        };
+
+        function updateUI(status, label) {
+            statusBar.setAttribute('data-status', status);
+            statusText.textContent = label;
+        }
+
+        function checkFallbackSchedule(now) {
+            const schedule = window.STARBUCKS_SCHEDULE || FALLBACK_STARBUCKS_SCHEDULE;
+            const pad = (n) => String(n).padStart(2, '0');
+            const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+            
+            const dayData = schedule[dateStr];
+            if (dayData) {
+                const events = Array.isArray(dayData) ? dayData : [dayData];
+                const currentMin = now.getHours() * 60 + now.getMinutes();
+
+                for (const item of events) {
+                    if (!item.start || !item.end) continue;
+                    const [sh, sm] = item.start.split(':').map(Number);
+                    const [eh, em] = item.end.split(':').map(Number);
+                    const startMin = sh * 60 + sm;
+                    const endMin = eh * 60 + em;
+
+                    if (currentMin >= startMin && currentMin < endMin) {
+                        const notes = (item.notes || '').toLowerCase();
+                        const title = (item.title || '').toLowerCase();
+                        const isBusyFlag = item.type === 'busy' || item.busy === true || item.isStarbucks === false || item.status === 'busy' || notes.includes('busy') || title.includes('busy');
+                        if (isBusyFlag) {
+                            return { status: 'busy', label: 'Busy' };
+                        }
+                        return { status: 'at-work', label: 'At work' };
+                    }
+                }
+            }
+            return null;
+        }
+
+        async function fetchCalendarStatus() {
+            const now = new Date();
+            const timeMin = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+            const timeMax = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&singleEvents=true&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&orderBy=startTime`;
+
+            let foundAtWork = false;
+            let foundBusy = false;
+            let apiSuccess = false;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) {
+                    console.warn(`[Live Status] Google Calendar API request returned HTTP ${res.status}. Using fallback schedule.`);
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                const data = await res.json();
+                apiSuccess = true;
+
+                if (data.items && Array.isArray(data.items)) {
+                    for (const event of data.items) {
+                        if (event.status === 'cancelled') continue;
+                        
+                        let start, end;
+                        if (event.start && event.start.dateTime) {
+                            start = new Date(event.start.dateTime);
+                            end = new Date(event.end.dateTime);
+                        } else if (event.start && event.start.date) {
+                            // Parse all-day events in local timezone midnight
+                            const [sy, sm, sd] = event.start.date.split('-').map(Number);
+                            const [ey, em, ed] = event.end.date.split('-').map(Number);
+                            start = new Date(sy, sm - 1, sd, 0, 0, 0);
+                            end = new Date(ey, em - 1, ed, 0, 0, 0);
+                        } else {
+                            continue;
+                        }
+
+                        if (start <= now && now < end) {
+                            const summary = (event.summary || '').trim().toLowerCase();
+                            const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
+                            const isBusy = event.transparency !== 'transparent';
+
+                            if (isStarbucks) {
+                                foundAtWork = true;
+                                break; // Starbucks shift takes top priority
+                            } else if (isBusy) {
+                                foundBusy = true;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                apiSuccess = false;
+            }
+
+            if (!apiSuccess) {
+                const fallback = checkFallbackSchedule(now);
+                if (fallback) {
+                    if (fallback.status === 'at-work') foundAtWork = true;
+                    if (fallback.status === 'busy') foundBusy = true;
+                }
+            }
+
+            if (foundAtWork) {
+                updateUI('at-work', 'At work');
+            } else if (foundBusy) {
+                updateUI('busy', 'Busy');
+            } else if (window.isSpotifyPlaying) {
+                updateUI('listening', 'Listening to music');
+            } else {
+                updateUI('available', 'Available');
+            }
+        }
+
+        window.updateLiveStatus = fetchCalendarStatus;
+
+        fetchCalendarStatus();
+        setInterval(fetchCalendarStatus, 10000);
+    }
 
     function initHelpModal() {
         const helpBtn = document.getElementById('help-btn');

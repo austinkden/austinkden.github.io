@@ -140,6 +140,62 @@ h1 {
     margin: 0 auto;
 }
 
+.live-status-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    background: var(--surface-variant);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--on-surface);
+    margin: 0.2rem auto 0 auto;
+    width: fit-content;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.live-status-bar:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #888888;
+    animation: live-pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.live-status-bar[data-status="at-work"] .live-dot {
+    background-color: #00a862;
+}
+
+.live-status-bar[data-status="busy"] .live-dot {
+    background-color: #f59e0b;
+}
+
+.live-status-bar[data-status="listening"] .live-dot {
+    background-color: #1db954;
+}
+
+.live-status-bar[data-status="available"] .live-dot {
+    background-color: #22c55e;
+}
+
+@keyframes live-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
 /* Grid Layout for Portals */
 .portal-grid {
     display: grid;
