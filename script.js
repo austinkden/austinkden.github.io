@@ -617,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!statusBar || !statusText) return;
 
         const apiKey = 'AIzaSyBIwrZ7LnEPCEGs5CM_Pq61YtGZ3jHVQHY';
-        const calendarId = 'austinstrong500@gmail.com';
+        const calendarId = 'dolphin.kden@gmail.com';
 
         // Fallback schedule data in case API key access is blocked or offline
         const FALLBACK_STARBUCKS_SCHEDULE = {
@@ -642,8 +642,16 @@ document.addEventListener('DOMContentLoaded', () => {
             "2026-07-29": { start: "07:15", end: "12:00" },
             "2026-07-30": { start: "07:00", end: "13:30" },
             "2026-07-31": { start: "12:45", end: "19:15" },
-            "2026-08-02": { start: "11:00", end: "18:30" }
+            "2026-08-02": { start: "11:00", end: "18:30" },
+            "2026-08-03": { start: "14:15", end: "19:00" },
+            "2026-08-05": { start: "11:15", end: "15:45" },
+            "2026-08-06": { start: "07:00", end: "13:00" },
+            "2026-08-08": { start: "09:30", end: "17:00" },
+            "2026-08-09": { start: "08:00", end: "12:30" }
         };
+
+        let apiDisabled = false;
+        let apiWarned = false;
 
         function updateUI(status, label) {
             statusBar.setAttribute('data-status', status);
@@ -683,57 +691,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async function fetchCalendarStatus() {
             const now = new Date();
-            const timeMin = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-            const timeMax = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&singleEvents=true&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&orderBy=startTime`;
-
             let foundAtWork = false;
             let foundBusy = false;
             let apiSuccess = false;
 
-            try {
-                const res = await fetch(url);
-                if (!res.ok) {
-                    console.warn(`[Live Status] Google Calendar API request returned HTTP ${res.status}. Using fallback schedule.`);
-                    throw new Error(`HTTP ${res.status}`);
-                }
-                const data = await res.json();
-                apiSuccess = true;
+            if (!apiDisabled) {
+                const timeMin = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+                const timeMax = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+                const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&singleEvents=true&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&orderBy=startTime`;
 
-                if (data.items && Array.isArray(data.items)) {
-                    for (const event of data.items) {
-                        if (event.status === 'cancelled') continue;
-                        
-                        let start, end;
-                        if (event.start && event.start.dateTime) {
-                            start = new Date(event.start.dateTime);
-                            end = new Date(event.end.dateTime);
-                        } else if (event.start && event.start.date) {
-                            // Parse all-day events in local timezone midnight
-                            const [sy, sm, sd] = event.start.date.split('-').map(Number);
-                            const [ey, em, ed] = event.end.date.split('-').map(Number);
-                            start = new Date(sy, sm - 1, sd, 0, 0, 0);
-                            end = new Date(ey, em - 1, ed, 0, 0, 0);
-                        } else {
-                            continue;
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) {
+                        if (!apiWarned) {
+                            console.warn(`[Live Status] Google Calendar API request returned HTTP ${res.status}. Using fallback schedule.`);
+                            apiWarned = true;
                         }
+                        // Disable direct API fetches when HTTP 403 Forbidden or 401 Unauthorized is returned to avoid console GET spam
+                        if (res.status === 403 || res.status === 401 || res.status === 404) {
+                            apiDisabled = true;
+                        }
+                        throw new Error(`HTTP ${res.status}`);
+                    }
+                    const data = await res.json();
+                    apiSuccess = true;
 
-                        if (start <= now && now < end) {
-                            const summary = (event.summary || '').trim().toLowerCase();
-                            const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
-                            const isBusy = event.transparency !== 'transparent';
+                    if (data.items && Array.isArray(data.items)) {
+                        for (const event of data.items) {
+                            if (event.status === 'cancelled') continue;
+                            
+                            let start, end;
+                            if (event.start && event.start.dateTime) {
+                                start = new Date(event.start.dateTime);
+                                end = new Date(event.end.dateTime);
+                            } else if (event.start && event.start.date) {
+                                // Parse all-day events in local timezone midnight
+                                const [sy, sm, sd] = event.start.date.split('-').map(Number);
+                                const [ey, em, ed] = event.end.date.split('-').map(Number);
+                                start = new Date(sy, sm - 1, sd, 0, 0, 0);
+                                end = new Date(ey, em - 1, ed, 0, 0, 0);
+                            } else {
+                                continue;
+                            }
 
-                            if (isStarbucks) {
-                                foundAtWork = true;
-                                break; // Starbucks shift takes top priority
-                            } else if (isBusy) {
-                                foundBusy = true;
+                            if (start <= now && now < end) {
+                                const summary = (event.summary || '').trim().toLowerCase();
+                                const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
+                                const isBusy = event.transparency !== 'transparent';
+
+                                if (isStarbucks) {
+                                    foundAtWork = true;
+                                    break; // Starbucks shift takes top priority
+                                } else if (isBusy) {
+                                    foundBusy = true;
+                                }
                             }
                         }
                     }
+                } catch (err) {
+                    apiSuccess = false;
                 }
-            } catch (err) {
-                apiSuccess = false;
             }
 
             if (!apiSuccess) {
