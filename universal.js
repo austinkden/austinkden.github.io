@@ -980,6 +980,8 @@
         const style = document.createElement('style');
         style.id = 'astrong-cmd-palette-style';
         style.textContent = `
+            @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
             .cmd-palette-modal {
                 position: fixed;
                 top: 0;
@@ -1052,7 +1054,7 @@
                 opacity: 0.7;
             }
             .cmd-palette-badge {
-                font-family: monospace;
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
                 font-size: 0.7rem;
                 padding: 2px 6px;
                 background: var(--surface-variant, #2d2a33);
@@ -1130,7 +1132,7 @@
                 -webkit-user-select: none;
             }
             .cmd-palette-footer kbd {
-                font-family: monospace;
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
                 padding: 1px 4px;
                 background: var(--surface-variant, #2d2a33);
                 border: 1px solid var(--outline, #49454f);
