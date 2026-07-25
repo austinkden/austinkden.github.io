@@ -1,6 +1,6 @@
 // universal.js - Loads and applies the persistent accent theme across all pages
 (function() {
-    console.log("Version 0.3");
+    console.log("Version 0.3.1");
 
     // 0. Universal Loading Screen
     (function() {
@@ -185,7 +185,6 @@
             document.documentElement.style.setProperty('--on-primary-container', theme.onPrimaryContainer);
         }
 
-        // Sync to cookies and localStorage
         try {
             if (localStorage.getItem('astrong_accent') !== accent) {
                 localStorage.setItem('astrong_accent', accent);
@@ -202,8 +201,53 @@
         } catch (e) {
             console.error('Error syncing theme settings:', e);
         }
+
+        syncSettingsUI(accent, mode);
+    }
+
+    function syncSettingsUI(accent, mode) {
+        if (!accent) {
+            accent = getThemeCookie('astrong_accent') || localStorage.getItem('astrong_accent') || 'purple';
+        }
+        if (!mode) {
+            mode = getThemeCookie('astrong_mode') || localStorage.getItem('astrong_mode') || 'dark';
+        }
+
+        const themeTogglePill = document.getElementById('theme-toggle-pill');
+        if (themeTogglePill) {
+            themeTogglePill.setAttribute('data-active', mode);
+        }
+
+        const accentSelect = document.getElementById('accent-select');
+        if (accentSelect) {
+            const whiteOption = accentSelect.querySelector('.option-white');
+            if (whiteOption) {
+                whiteOption.textContent = mode === 'light' ? 'Black' : 'White';
+            }
+
+            const options = accentSelect.querySelectorAll('.select-option');
+            options.forEach(opt => {
+                if (opt.getAttribute('data-value') === accent) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+
+            const activeOption = accentSelect.querySelector(`.select-option[data-value="${accent}"]`);
+            const triggerText = accentSelect.querySelector('.select-trigger-text');
+            if (activeOption && triggerText) {
+                triggerText.textContent = activeOption.textContent;
+                setTimeout(() => {
+                    if (activeOption && triggerText) {
+                        triggerText.style.color = window.getComputedStyle(activeOption).color;
+                    }
+                }, 0);
+            }
+        }
     }
     window.applyTheme = applyTheme;
+    window.syncSettingsUI = syncSettingsUI;
 
     // 2. Global Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
@@ -318,6 +362,8 @@
 
     // 4. Initialize DOM Features
     document.addEventListener('DOMContentLoaded', () => {
+        syncSettingsUI();
+
         // A. Inject SVG Cookie path definitions dynamically if needed
         const wrapper = document.querySelector('.pfp-wrapper');
         if (wrapper) {
