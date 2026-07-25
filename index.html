@@ -56,6 +56,11 @@
 </head>
 
 <body>
+    <!-- Ambient Floating Edge Purple Bubble -->
+    <div class="ambient-bubble-container" aria-hidden="true">
+        <div class="ambient-bubble"></div>
+    </div>
+
     <!-- Universal Loading Screen -->
     <div id="astrong-loading-screen">
         <svg viewBox="0 0 1 1" class="loading-spinner">
@@ -218,7 +223,7 @@
             </a>
 
             <!-- Spotify Widget -->
-            <a id="spotify-widget" class="portal-card spotify-card" href="#" target="_blank" rel="noopener noreferrer">
+            <a id="spotify-widget" class="portal-card spotify-card" href="#" target="_blank" rel="noopener noreferrer" style="display: none;">
                 <div class="card-left">
                     <div class="card-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -230,8 +235,8 @@
                         </svg>
                     </div>
                     <div class="card-text">
-                        <h2 id="spotify-track">Checking...</h2>
-                        <p id="spotify-artist">Connecting to Spotify...</p>
+                        <h2 id="spotify-track"></h2>
+                        <p id="spotify-artist"></p>
                     </div>
                 </div>
                 <div class="card-action">

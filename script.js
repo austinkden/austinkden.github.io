@@ -12,6 +12,70 @@ const SPOTIFY_CONFIG = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Dynamic Autonomous Random Floating Purple Bubble with Edge-Distance Brightness
+    const ambientBubble = document.querySelector('.ambient-bubble');
+    if (ambientBubble) {
+        const getRandomWaypoint = () => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            return {
+                x: (Math.random() * 1.3 - 0.15) * w,
+                y: (Math.random() * 1.3 - 0.15) * h
+            };
+        };
+
+        let startPos = getRandomWaypoint();
+        let currX = startPos.x;
+        let currY = startPos.y;
+        let targetPos = getRandomWaypoint();
+        let startTime = performance.now();
+        let duration = 6000 + Math.random() * 6000;
+
+        const updateBubble = (now) => {
+            let elapsed = now - startTime;
+            let progress = Math.min(1, elapsed / duration);
+
+            // Smooth cubic ease-in-out curve
+            let ease = progress < 0.5 
+                ? 2 * progress * progress 
+                : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+            currX = startPos.x + (targetPos.x - startPos.x) * ease;
+            currY = startPos.y + (targetPos.y - startPos.y) * ease;
+
+            if (progress >= 1) {
+                startPos = { x: currX, y: currY };
+                targetPos = getRandomWaypoint();
+                startTime = now;
+                duration = 6000 + Math.random() * 6000;
+            }
+
+            // Calculate distance to nearest screen edge
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const distLeft = currX;
+            const distRight = w - currX;
+            const distTop = currY;
+            const distBottom = h - currY;
+
+            const minEdgeDist = Math.min(distLeft, distRight, distTop, distBottom);
+            const maxEdgeDist = Math.min(w, h) / 2;
+
+            // Closeness factor: 1 at/beyond edge, 0 at exact screen center
+            const edgeCloseness = Math.max(0, Math.min(1, 1 - (minEdgeDist / maxEdgeDist)));
+
+            // Calculate brightness strictly from edge distance (0.35 at center -> 1.0 at edge)
+            const opacity = 0.35 + 0.65 * Math.pow(edgeCloseness, 0.85);
+
+            ambientBubble.style.transform = `translate3d(${currX.toFixed(1)}px, ${currY.toFixed(1)}px, 0)`;
+            ambientBubble.style.opacity = opacity.toFixed(3);
+
+            requestAnimationFrame(updateBubble);
+        };
+
+        requestAnimationFrame(updateBubble);
+    }
+
     // 1. Handle shape cycling and reversing the rotation of the cookie
     const wrapper = document.querySelector('.pfp-wrapper');
     const img = document.querySelector('.pfp-wrapper img');
@@ -296,6 +360,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!widget || !trackName || !artistName) return;
 
+        // Ensure widget is hidden by default while checking
+        widget.style.display = 'none';
+
         function cleanSongTitle(title) {
             if (!title) return '';
             // Remove (feat. ...), [feat. ...], (ft. ...), [ft. ...] or (feat.), (ft.)
@@ -303,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let accessToken = '';
+        let isInitialCheckCompleted = false;
 
         const hasWorker = !!SPOTIFY_CONFIG.workerUrl;
         const hasClientCredentials = 
@@ -317,22 +385,44 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Spend up to 3 seconds checking for a Spotify connection during page load.
+        // If it cannot connect after 3 seconds, unblock page loading without showing the widget.
+        const initialTimeout = setTimeout(() => {
+            if (!isInitialCheckCompleted) {
+                isInitialCheckCompleted = true;
+                widget.style.display = 'none';
+                window.spotifyDecided = true;
+                window.dispatchEvent(new CustomEvent('spotify-decided'));
+            }
+        }, 3000);
+
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 3000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                return await fetch(url, { ...options, signal: controller.signal });
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
         async function updateCurrentlyPlaying() {
             try {
                 let data;
+                const timeoutMs = isInitialCheckCompleted ? 8000 : 3000;
                 if (hasWorker) {
                     // Worker returns a refreshed access token — use it to call Spotify directly
                     if (!accessToken) {
-                        const tokenRes = await fetch(SPOTIFY_CONFIG.workerUrl);
+                        const tokenRes = await fetchWithTimeout(SPOTIFY_CONFIG.workerUrl, {}, timeoutMs);
                         const tokenData = await tokenRes.json();
                         accessToken = tokenData.access_token;
                     }
-                    data = await fetchSpotifyCurrentlyPlaying();
+                    data = await fetchSpotifyCurrentlyPlaying(timeoutMs);
                 } else {
                     if (!accessToken) {
-                        await refreshAccessToken();
+                        await refreshAccessToken(timeoutMs);
                     }
-                    data = await fetchSpotifyCurrentlyPlaying();
+                    data = await fetchSpotifyCurrentlyPlaying(timeoutMs);
                 }
 
                 if (data && data.isPlaying) {
@@ -356,33 +446,36 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error('Spotify API Error:', err);
                 accessToken = ''; // Reset token on error
+                widget.style.display = 'none';
                 window.isSpotifyPlaying = false;
                 if (window.updateLiveStatus) {
                     window.updateLiveStatus();
                 }
             } finally {
-                window.spotifyDecided = true;
-                window.dispatchEvent(new CustomEvent('spotify-decided'));
+                if (!isInitialCheckCompleted) {
+                    isInitialCheckCompleted = true;
+                    clearTimeout(initialTimeout);
+                    window.spotifyDecided = true;
+                    window.dispatchEvent(new CustomEvent('spotify-decided'));
+                }
             }
         }
 
-        async function refreshAccessToken() {
-            // 1. Must use HTTPS
-            // 2. Must hit the actual Spotify accounts ID service
+        async function refreshAccessToken(timeoutMs = 5000) {
             const url = `${SPOTIFY_CONFIG.corsProxy}https://accounts.spotify.com/api/token`;
             const body = new URLSearchParams({
                 grant_type: 'refresh_token',
                 refresh_token: SPOTIFY_CONFIG.refreshToken
             });
 
-            const res = await fetch(url, {
+            const res = await fetchWithTimeout(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'Authorization': 'Basic ' + btoa(`${SPOTIFY_CONFIG.clientId}:${SPOTIFY_CONFIG.clientSecret}`)
                 },
                 body: body
-            });
+            }, timeoutMs);
 
             if (!res.ok) {
                 throw new Error(`Failed to refresh Spotify access token: ${res.statusText}`);
@@ -392,14 +485,13 @@ document.addEventListener('DOMContentLoaded', () => {
             accessToken = data.access_token;
         }
 
-        async function fetchSpotifyCurrentlyPlaying() {
-            // Must hit the real Spotify production API endpoint over HTTPS
+        async function fetchSpotifyCurrentlyPlaying(timeoutMs = 5000) {
             const url = 'https://api.spotify.com/v1/me/player/currently-playing';
-            const res = await fetch(url, {
+            const res = await fetchWithTimeout(url, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
-            });
+            }, timeoutMs);
 
             if (res.status === 204) {
                 return { isPlaying: false };
@@ -408,13 +500,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.status === 401) {
                 accessToken = '';
                 if (hasWorker) {
-                    const tokenRes = await fetch(SPOTIFY_CONFIG.workerUrl);
+                    const tokenRes = await fetchWithTimeout(SPOTIFY_CONFIG.workerUrl, {}, timeoutMs);
                     const tokenData = await tokenRes.json();
                     accessToken = tokenData.access_token;
                 } else {
-                    await refreshAccessToken();
+                    await refreshAccessToken(timeoutMs);
                 }
-                return fetchSpotifyCurrentlyPlaying();
+                return fetchSpotifyCurrentlyPlaying(timeoutMs);
             }
 
             if (!res.ok) {
