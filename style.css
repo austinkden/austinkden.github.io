@@ -91,7 +91,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Ambient Edge Floating Purple Bubble */
+/* Ambient Edge Floating Accent Bubble */
 .ambient-bubble-container {
     position: fixed;
     top: 0;
@@ -112,15 +112,15 @@ body {
     margin-top: calc(-1 * clamp(450px, 55vw, 800px) / 2);
     margin-left: calc(-1 * clamp(450px, 55vw, 800px) / 2);
     border-radius: 50%;
-    background: radial-gradient(circle at center, rgba(136, 89, 255, 0.12) 0%, rgba(136, 89, 255, 0.06) 35%, rgba(136, 89, 255, 0.012) 65%, transparent 85%);
+    background: radial-gradient(circle at center, color-mix(in srgb, var(--primary) 22%, transparent) 0%, color-mix(in srgb, var(--primary) 10%, transparent) 35%, color-mix(in srgb, var(--primary) 2%, transparent) 65%, transparent 85%);
     filter: blur(80px);
     pointer-events: none;
     will-change: transform, opacity;
 }
 
 :root.light-mode .ambient-bubble {
-    background: radial-gradient(circle at center, rgba(136, 89, 255, 0.09) 0%, rgba(136, 89, 255, 0.04) 35%, rgba(136, 89, 255, 0.008) 65%, transparent 85%);
-    filter: blur(90px);
+    background: radial-gradient(circle at center, color-mix(in srgb, var(--primary) 28%, transparent) 0%, color-mix(in srgb, var(--primary) 14%, transparent) 35%, color-mix(in srgb, var(--primary) 3%, transparent) 65%, transparent 85%);
+    filter: blur(70px);
 }
 
 .pfp-wrapper {

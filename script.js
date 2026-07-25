@@ -12,7 +12,7 @@ const SPOTIFY_CONFIG = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Dynamic Autonomous Random Floating Purple Bubble with Edge-Distance Brightness
+    // Dynamic Autonomous Random Floating Accent Bubble with Edge-Distance Brightness
     const ambientBubble = document.querySelector('.ambient-bubble');
     if (ambientBubble) {
         const getRandomWaypoint = () => {
