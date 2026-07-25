@@ -1032,7 +1032,7 @@
                 overflow: hidden;
                 box-shadow: none;
                 animation: cmdPaletteFadeIn 0.15s ease-out;
-                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             }
             @keyframes cmdPaletteFadeIn {
                 from { opacity: 0; transform: translateY(-8px); }
@@ -1054,7 +1054,7 @@
                 background: transparent;
                 border: none;
                 outline: none;
-                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-family: inherit;
                 font-size: 1rem;
                 color: var(--on-surface, #e6e1e5);
             }
@@ -1105,7 +1105,7 @@
             .cmd-palette-item-title {
                 font-size: 0.9rem;
                 font-weight: 500;
-                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-family: inherit;
             }
             .cmd-palette-item-category {
                 font-size: 0.75rem;
@@ -1114,7 +1114,7 @@
                 background: var(--surface-variant, #2d2a33);
                 padding: 2px 8px;
                 border-radius: 12px;
-                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-family: inherit;
             }
             .cmd-palette-item.selected {
                 background-color: var(--primary-container, #4527a0);
@@ -1129,7 +1129,7 @@
                 text-align: center;
                 font-size: 0.88rem;
                 color: var(--on-surface-variant, #cac4d0);
-                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-family: inherit;
             }
             .cmd-palette-footer {
                 display: flex;
@@ -1142,9 +1142,9 @@
                 color: var(--on-surface-variant, #cac4d0);
                 user-select: none;
                 -webkit-user-select: none;
-                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-family: inherit;
             }
-            .cmd-palette-footer kbd {
+            .cmd-palette-footer kbd, .cmd-palette-container kbd {
                 font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
                 padding: 1px 4px;
                 background: var(--surface-variant, #2d2a33);
