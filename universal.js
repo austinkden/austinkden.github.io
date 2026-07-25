@@ -592,21 +592,30 @@
         let longPressTimer = null;
         let isLongPress = false;
         let startX = 0, startY = 0;
+        let hasReversedThisPress = false;
 
         // Long press → reverse direction (mobile equivalent of right-click)
         wrapper.addEventListener('pointerdown', (e) => {
             if (e.pointerType === 'mouse' && e.button !== 0) return;
             isLongPress = false;
+            hasReversedThisPress = false;
             startX = e.clientX;
             startY = e.clientY;
             longPressTimer = setTimeout(() => {
                 isLongPress = true;
-                reverseRotation();
-                temporarySpeedUp();
+                if (!hasReversedThisPress) {
+                    hasReversedThisPress = true;
+                    reverseRotation();
+                    temporarySpeedUp();
+                }
             }, 250);
         });
 
         wrapper.addEventListener('pointerup', () => {
+            if (longPressTimer) clearTimeout(longPressTimer);
+        });
+
+        wrapper.addEventListener('pointercancel', () => {
             if (longPressTimer) clearTimeout(longPressTimer);
         });
 
@@ -633,8 +642,11 @@
         wrapper.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            reverseRotation();
-            temporarySpeedUp();
+            if (!hasReversedThisPress) {
+                hasReversedThisPress = true;
+                reverseRotation();
+                temporarySpeedUp();
+            }
         });
 
         // Auto-cycle shape on root homepage only
