@@ -207,6 +207,10 @@
 
     // 2. Global Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+            return; // Ignore shortcuts if any modifier key is held
+        }
+
         const activeEl = document.activeElement;
         if (activeEl && (
             activeEl.tagName === 'INPUT' || 
@@ -648,6 +652,171 @@
             }
         }
 
+        function createMenuItem(it) {
+            if (it.type === 'separator') {
+                const sep = document.createElement('div');
+                Object.assign(sep.style, {
+                    height: '1px',
+                    background: 'var(--outline, #49454f)',
+                    margin: '6px 4px'
+                });
+                return sep;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'menu-item-wrapper';
+            Object.assign(wrapper.style, {
+                position: 'relative',
+                width: '100%'
+            });
+
+            const btn = document.createElement('button');
+            btn.className = 'menu-item-btn';
+            Object.assign(btn.style, {
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--on-surface, #e6e1e5)',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'space-between',
+                gap: '12px',
+                transition: 'background-color 0.15s ease, color 0.15s ease',
+                userSelect: 'none',
+                webkitUserSelect: 'none'
+            });
+
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = it.label;
+            btn.appendChild(labelSpan);
+
+            let submenu = null;
+            let leaveTimeout = null;
+
+            if (it.children && it.children.length > 0) {
+                const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                chevron.setAttribute('width', '14');
+                chevron.setAttribute('height', '14');
+                chevron.setAttribute('viewBox', '0 0 24 24');
+                chevron.setAttribute('fill', 'none');
+                chevron.setAttribute('stroke', 'currentColor');
+                chevron.setAttribute('stroke-width', '2.5');
+                chevron.setAttribute('stroke-linecap', 'round');
+                chevron.setAttribute('stroke-linejoin', 'round');
+                chevron.style.opacity = '0.7';
+                chevron.style.flexShrink = '0';
+
+                const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+                polyline.setAttribute('points', '9 18 15 12 9 6');
+                chevron.appendChild(polyline);
+                btn.appendChild(chevron);
+
+                submenu = document.createElement('div');
+                submenu.className = 'custom-context-submenu';
+                Object.assign(submenu.style, {
+                    position: 'absolute',
+                    top: '-6px',
+                    left: '100%',
+                    paddingLeft: '10px',
+                    zIndex: '10001',
+                    display: 'none',
+                    userSelect: 'none',
+                    webkitUserSelect: 'none'
+                });
+
+                const submenuInner = document.createElement('div');
+                submenuInner.className = 'custom-context-submenu-inner';
+                Object.assign(submenuInner.style, {
+                    background: 'var(--surface, #1d1b20)',
+                    border: '1px solid var(--outline, #49454f)',
+                    borderRadius: '12px',
+                    padding: '6px',
+                    minWidth: '170px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                });
+
+                it.children.forEach(child => {
+                    const childEl = createMenuItem(child);
+                    submenuInner.appendChild(childEl);
+                });
+
+                submenu.appendChild(submenuInner);
+                wrapper.appendChild(submenu);
+            }
+
+            btn.addEventListener('click', (e) => {
+                if (it.action) {
+                    it.action(e);
+                    menu.style.display = 'none';
+                    document.querySelectorAll('.custom-context-submenu').forEach(s => s.style.display = 'none');
+                }
+            });
+
+            wrapper.addEventListener('mouseenter', () => {
+                if (leaveTimeout) {
+                    clearTimeout(leaveTimeout);
+                    leaveTimeout = null;
+                }
+                btn.style.background = 'var(--surface-variant, #2d2a33)';
+                btn.style.color = 'var(--on-surface, #ffffff)';
+
+                const parent = wrapper.parentElement;
+                if (parent) {
+                    parent.querySelectorAll('.custom-context-submenu').forEach(s => {
+                        if (s !== submenu) s.style.display = 'none';
+                    });
+                }
+
+                if (submenu) {
+                    submenu.style.display = 'block';
+
+                    const wrapperRect = wrapper.getBoundingClientRect();
+                    const submenuWidth = submenu.offsetWidth || 180;
+                    const submenuHeight = submenu.offsetHeight || 150;
+
+                    if (wrapperRect.right + submenuWidth + 12 > window.innerWidth) {
+                        submenu.style.left = 'auto';
+                        submenu.style.right = '100%';
+                        submenu.style.paddingLeft = '0px';
+                        submenu.style.paddingRight = '10px';
+                    } else {
+                        submenu.style.left = '100%';
+                        submenu.style.right = 'auto';
+                        submenu.style.paddingLeft = '10px';
+                        submenu.style.paddingRight = '0px';
+                    }
+
+                    if (wrapperRect.top + submenuHeight + 8 > window.innerHeight) {
+                        const overflow = (wrapperRect.top + submenuHeight + 8) - window.innerHeight;
+                        submenu.style.top = `${-6 - overflow}px`;
+                    } else {
+                        submenu.style.top = '-6px';
+                    }
+                }
+            });
+
+            wrapper.addEventListener('mouseleave', () => {
+                leaveTimeout = setTimeout(() => {
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'var(--on-surface, #e6e1e5)';
+                    if (submenu) {
+                        submenu.style.display = 'none';
+                    }
+                }, 120);
+            });
+
+            wrapper.appendChild(btn);
+            return wrapper;
+        }
+
         let lastRightClickTime = 0;
         window.addEventListener('contextmenu', (e) => {
             const now = Date.now();
@@ -664,9 +833,31 @@
 
             const items = [
                 { label: 'Home', action: () => window.location.href = 'https://astrong.xyz' },
-                { label: 'Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz' },
-                { label: 'Utilities', action: () => window.location.href = 'https://utility.astrong.xyz' },
-                { label: 'About', action: () => window.location.href = 'https://astrong.xyz/about' }
+                {
+                    label: 'Schedule',
+                    action: () => window.location.href = 'https://schedule.astrong.xyz',
+                    children: [
+                        { label: 'Starbucks Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/starbucks' },
+                        { label: 'Find a Time', action: () => window.open('https://calendar.app.google/j4EnNgkWWep23ZZC7', '_blank') }
+                    ]
+                },
+                {
+                    label: 'Utilities',
+                    action: () => window.location.href = 'https://utility.astrong.xyz',
+                    children: [
+                        { label: 'Lorem Ipsum', action: () => window.location.href = 'https://utility.astrong.xyz/lorem' },
+                        { label: 'METAR Weather', action: () => window.location.href = 'https://utility.astrong.xyz/metar' },
+                        { label: 'Password Generator', action: () => window.location.href = 'https://utility.astrong.xyz/password' },
+                        { label: 'Progress Tracker', action: () => window.location.href = 'https://utility.astrong.xyz/progress' },
+                        { label: 'QR Code Generator', action: () => window.location.href = 'https://utility.astrong.xyz/qrcode' },
+                        { label: 'Text Tools', action: () => window.location.href = 'https://utility.astrong.xyz/text' },
+                        { label: 'Time Converter', action: () => window.location.href = 'https://utility.astrong.xyz/time' }
+                    ]
+                },
+                {
+                    label: 'About',
+                    action: () => window.location.href = 'https://astrong.xyz/about'
+                }
             ];
 
             const selection = window.getSelection();
@@ -732,45 +923,7 @@
 
             // Build DOM elements for the items
             items.forEach(it => {
-                if (it.type === 'separator') {
-                    const sep = document.createElement('div');
-                    Object.assign(sep.style, {
-                        height: '1px',
-                        background: 'var(--outline, #49454f)',
-                        margin: '6px 4px'
-                    });
-                    menu.appendChild(sep);
-                } else {
-                    const btn = document.createElement('button');
-                    btn.textContent = it.label;
-                    Object.assign(btn.style, {
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--on-surface, #e6e1e5)',
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        fontSize: '0.85rem',
-                        fontWeight: '600',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.15s ease, color 0.15s ease'
-                    });
-                    
-                    btn.addEventListener('mouseenter', () => {
-                        btn.style.background = 'var(--surface-variant, #2d2a33)';
-                        btn.style.color = 'var(--on-surface, #ffffff)';
-                    });
-                    btn.addEventListener('mouseleave', () => {
-                        btn.style.background = 'transparent';
-                        btn.style.color = 'var(--on-surface, #e6e1e5)';
-                    });
-                    btn.addEventListener('click', () => {
-                        it.action();
-                        menu.style.display = 'none';
-                    });
-
-                    menu.appendChild(btn);
-                }
+                menu.appendChild(createMenuItem(it));
             });
 
             menu.style.display = 'flex';
@@ -795,12 +948,14 @@
         window.addEventListener('click', (e) => {
             if (!menu.contains(e.target)) {
                 menu.style.display = 'none';
+                document.querySelectorAll('.custom-context-submenu').forEach(s => s.style.display = 'none');
             }
         });
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 menu.style.display = 'none';
+                document.querySelectorAll('.custom-context-submenu').forEach(s => s.style.display = 'none');
             }
         });
     }
