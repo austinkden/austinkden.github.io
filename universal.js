@@ -1200,15 +1200,15 @@
             { id: 'progress', title: 'Progress Tracker', category: 'Utilities', icon: icons.progress, url: 'https://utility.astrong.xyz/progress/' },
             { id: 'qrcode', title: 'QR Code Generator', category: 'Utilities', icon: icons.qrcode, url: 'https://utility.astrong.xyz/qrcode/' },
             { id: 'text', title: 'Text Toolkit', category: 'Utilities', icon: icons.text, url: 'https://utility.astrong.xyz/text/' },
-            { id: 'time', title: 'Time & Timezone', category: 'Utilities', icon: icons.time, url: 'https://utility.astrong.xyz/time/' },
-            { id: 'about', title: 'About Austin Strong', category: 'Navigation', icon: icons.about, url: 'https://astrong.xyz/about/' },
+            { id: 'time', title: 'Time', category: 'Utilities', icon: icons.time, url: 'https://utility.astrong.xyz/time/' },
+            { id: 'about', title: 'About Austin', category: 'Navigation', icon: icons.about, url: 'https://astrong.xyz/about/' },
             { id: 'theme-toggle', title: 'Toggle Light / Dark Mode', category: 'Actions', icon: icons.theme, action: () => {
                 const currentMode = localStorage.getItem('astrong_mode') || 'dark';
                 const newMode = currentMode === 'light' ? 'dark' : 'light';
                 applyTheme(null, newMode);
                 if (window.showToast) window.showToast(`Switched to ${newMode} mode`);
             }},
-            { id: 'accent-cycle', title: 'Cycle Accent Color', category: 'Actions', icon: icons.accent, action: () => cycleThemeAccent() },
+            { id: 'accent-cycle', title: 'Cycle Theme', category: 'Actions', icon: icons.accent, action: () => cycleThemeAccent() },
             { id: 'settings', title: 'Open Settings', category: 'Actions', icon: icons.settings, action: () => {
                 const btn = document.getElementById('settings-btn') || document.getElementById('settings-toggle');
                 if (btn) btn.click();
