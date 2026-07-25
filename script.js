@@ -658,6 +658,45 @@ document.addEventListener('DOMContentLoaded', () => {
             statusText.textContent = label;
         }
 
+        function processCalendarItems(items, now) {
+            let foundAtWork = false;
+            let foundBusy = false;
+
+            if (items && Array.isArray(items)) {
+                for (const event of items) {
+                    if (event.status === 'cancelled') continue;
+                    
+                    let start, end;
+                    if (event.start && event.start.dateTime) {
+                        start = new Date(event.start.dateTime);
+                        end = new Date(event.end.dateTime);
+                    } else if (event.start && event.start.date) {
+                        // Parse all-day events in local timezone midnight
+                        const [sy, sm, sd] = event.start.date.split('-').map(Number);
+                        const [ey, em, ed] = event.end.date.split('-').map(Number);
+                        start = new Date(sy, sm - 1, sd, 0, 0, 0);
+                        end = new Date(ey, em - 1, ed, 0, 0, 0);
+                    } else {
+                        continue;
+                    }
+
+                    if (start <= now && now < end) {
+                        const summary = (event.summary || '').trim().toLowerCase();
+                        const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
+                        const isBusy = event.transparency !== 'transparent';
+
+                        if (isStarbucks) {
+                            foundAtWork = true;
+                            break; // Starbucks shift takes top priority
+                        } else if (isBusy) {
+                            foundBusy = true;
+                        }
+                    }
+                }
+            }
+            return { foundAtWork, foundBusy };
+        }
+
         function checkFallbackSchedule(now) {
             const schedule = window.STARBUCKS_SCHEDULE || FALLBACK_STARBUCKS_SCHEDULE;
             const pad = (n) => String(n).padStart(2, '0');
@@ -703,53 +742,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const res = await fetch(url);
                     if (!res.ok) {
-                        if (!apiWarned) {
-                            console.warn(`[Live Status] Google Calendar API request returned HTTP ${res.status}. Using fallback schedule.`);
-                            apiWarned = true;
-                        }
-                        // Disable direct API fetches when HTTP 403 Forbidden or 401 Unauthorized is returned to avoid console GET spam
-                        if (res.status === 403 || res.status === 401 || res.status === 404) {
-                            apiDisabled = true;
-                        }
                         throw new Error(`HTTP ${res.status}`);
                     }
                     const data = await res.json();
+                    const result = processCalendarItems(data.items, now);
+                    foundAtWork = result.foundAtWork;
+                    foundBusy = result.foundBusy;
                     apiSuccess = true;
-
-                    if (data.items && Array.isArray(data.items)) {
-                        for (const event of data.items) {
-                            if (event.status === 'cancelled') continue;
-                            
-                            let start, end;
-                            if (event.start && event.start.dateTime) {
-                                start = new Date(event.start.dateTime);
-                                end = new Date(event.end.dateTime);
-                            } else if (event.start && event.start.date) {
-                                // Parse all-day events in local timezone midnight
-                                const [sy, sm, sd] = event.start.date.split('-').map(Number);
-                                const [ey, em, ed] = event.end.date.split('-').map(Number);
-                                start = new Date(sy, sm - 1, sd, 0, 0, 0);
-                                end = new Date(ey, em - 1, ed, 0, 0, 0);
-                            } else {
-                                continue;
-                            }
-
-                            if (start <= now && now < end) {
-                                const summary = (event.summary || '').trim().toLowerCase();
-                                const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
-                                const isBusy = event.transparency !== 'transparent';
-
-                                if (isStarbucks) {
-                                    foundAtWork = true;
-                                    break; // Starbucks shift takes top priority
-                                } else if (isBusy) {
-                                    foundBusy = true;
-                                }
+                } catch (err) {
+                    // Try live serverless proxy endpoint /api/calendar
+                    try {
+                        const proxyUrl = `/api/calendar?calendarId=${encodeURIComponent(calendarId)}`;
+                        const proxyRes = await fetch(proxyUrl);
+                        if (proxyRes.ok) {
+                            const proxyData = await proxyRes.json();
+                            if (proxyData.items) {
+                                const result = processCalendarItems(proxyData.items, now);
+                                foundAtWork = result.foundAtWork;
+                                foundBusy = result.foundBusy;
+                                apiSuccess = true;
                             }
                         }
+                    } catch (proxyErr) {
+                        // Proxy fetch failed, fallback to local schedule
                     }
-                } catch (err) {
-                    apiSuccess = false;
+
+                    if (!apiSuccess && !apiWarned) {
+                        console.warn(`[Live Status] Google Calendar REST API returned error. Falling back to live /api/calendar proxy or local schedule.`);
+                        apiWarned = true;
+                    }
                 }
             }
 
