@@ -1,6 +1,6 @@
 // universal.js - Loads and applies the persistent accent theme across all pages
 (function() {
-    console.log("Version 0.2.2");
+    console.log("Version 0.3");
 
     // 0. Universal Loading Screen
     (function() {
@@ -207,6 +207,19 @@
 
     // 2. Global Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
+        // Allow Cmd+K or Ctrl+K for Command Palette anywhere
+        if ((e.metaKey || e.ctrlKey) && (e.code === 'KeyK' || (e.key && e.key.toLowerCase() === 'k'))) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof initCommandPalette === 'function') {
+                initCommandPalette();
+            }
+            if (window.toggleCommandPalette) {
+                window.toggleCommandPalette();
+            }
+            return;
+        }
+
         if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
             return; // Ignore shortcuts if any modifier key is held
         }
@@ -236,7 +249,7 @@
                 backLink.click();
             }
         }
-    });
+    }, true);
 
     function cycleThemeAccent() {
         const currentAccent = localStorage.getItem('astrong_accent') || 'purple';
@@ -958,5 +971,381 @@
                 document.querySelectorAll('.custom-context-submenu').forEach(s => s.style.display = 'none');
             }
         });
+    }
+
+    // 5. Command Palette (Cmd+K / Ctrl+K) Implementation
+    function initCommandPalette() {
+        if (document.getElementById('astrong-cmd-palette')) return;
+
+        const style = document.createElement('style');
+        style.id = 'astrong-cmd-palette-style';
+        style.textContent = `
+            .cmd-palette-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: 100000;
+                display: none;
+                align-items: flex-start;
+                justify-content: center;
+                padding-top: 12vh;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            .cmd-palette-modal.active {
+                display: flex;
+            }
+            .cmd-palette-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(18, 16, 22, 0.75);
+                backdrop-filter: blur(4px);
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            :root.light-mode .cmd-palette-overlay {
+                background-color: rgba(253, 251, 255, 0.75);
+            }
+            .cmd-palette-container {
+                position: relative;
+                width: 100%;
+                max-width: 580px;
+                background-color: var(--surface, #1d1b20);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 16px;
+                z-index: 100001;
+                overflow: hidden;
+                box-shadow: none;
+                animation: cmdPaletteFadeIn 0.15s ease-out;
+            }
+            @keyframes cmdPaletteFadeIn {
+                from { opacity: 0; transform: translateY(-8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .cmd-palette-header {
+                display: flex;
+                align-items: center;
+                padding: 0.85rem 1.1rem;
+                border-bottom: 1px solid var(--outline, #49454f);
+                gap: 0.75rem;
+            }
+            .cmd-palette-search-icon {
+                color: var(--on-surface-variant, #cac4d0);
+                flex-shrink: 0;
+            }
+            .cmd-palette-input {
+                flex: 1;
+                background: transparent;
+                border: none;
+                outline: none;
+                font-family: inherit;
+                font-size: 1rem;
+                color: var(--on-surface, #e6e1e5);
+            }
+            .cmd-palette-input::placeholder {
+                color: var(--on-surface-variant, #cac4d0);
+                opacity: 0.7;
+            }
+            .cmd-palette-badge {
+                font-family: monospace;
+                font-size: 0.7rem;
+                padding: 2px 6px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 4px;
+                color: var(--on-surface-variant, #cac4d0);
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .cmd-palette-results {
+                max-height: 340px;
+                overflow-y: auto;
+                padding: 0.5rem;
+            }
+            .cmd-palette-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0.65rem 0.85rem;
+                border-radius: 8px;
+                cursor: pointer;
+                user-select: none;
+                -webkit-user-select: none;
+                transition: background-color 0.1s ease, color 0.1s ease;
+                color: var(--on-surface, #e6e1e5);
+            }
+            .cmd-palette-item-left {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            .cmd-palette-item-icon {
+                font-size: 1.1rem;
+                width: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .cmd-palette-item-title {
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            .cmd-palette-item-category {
+                font-size: 0.75rem;
+                color: var(--on-surface-variant, #cac4d0);
+                opacity: 0.8;
+                background: var(--surface-variant, #2d2a33);
+                padding: 2px 8px;
+                border-radius: 12px;
+            }
+            .cmd-palette-item.selected {
+                background-color: var(--primary-container, #4527a0);
+                color: var(--on-primary-container, #ffffff);
+            }
+            .cmd-palette-item.selected .cmd-palette-item-category {
+                background-color: rgba(255, 255, 255, 0.15);
+                color: #ffffff;
+            }
+            .cmd-palette-no-results {
+                padding: 1.5rem;
+                text-align: center;
+                font-size: 0.88rem;
+                color: var(--on-surface-variant, #cac4d0);
+            }
+            .cmd-palette-footer {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 1.25rem;
+                padding: 0.5rem 1rem;
+                border-top: 1px solid var(--outline, #49454f);
+                font-size: 0.75rem;
+                color: var(--on-surface-variant, #cac4d0);
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .cmd-palette-footer kbd {
+                font-family: monospace;
+                padding: 1px 4px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 3px;
+                margin-right: 3px;
+            }
+        `;
+        document.head.appendChild(style);
+
+        const modal = document.createElement('div');
+        modal.id = 'astrong-cmd-palette';
+        modal.className = 'cmd-palette-modal';
+        modal.setAttribute('aria-hidden', 'true');
+        modal.innerHTML = `
+            <div class="cmd-palette-overlay"></div>
+            <div class="cmd-palette-container">
+                <div class="cmd-palette-header">
+                    <svg class="cmd-palette-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="cmd-palette-input" class="cmd-palette-input" placeholder="Type a command or search pages..." autocomplete="off" spellcheck="false" />
+                    <kbd class="cmd-palette-badge">ESC</kbd>
+                </div>
+                <div class="cmd-palette-results" id="cmd-palette-results"></div>
+                <div class="cmd-palette-footer">
+                    <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+                    <span><kbd>↵</kbd> select</span>
+                    <span><kbd>esc</kbd> close</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const input = modal.querySelector('#cmd-palette-input');
+        const resultsContainer = modal.querySelector('#cmd-palette-results');
+        const overlay = modal.querySelector('.cmd-palette-overlay');
+
+        let selectedIndex = 0;
+        let filteredItems = [];
+
+        const icons = {
+            home: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+            schedule: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+            starbucks: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>`,
+            utility: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+            contrast: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.74 1.7-1.67 0-.42-.16-.82-.44-1.12-.27-.3-.43-.7-.43-1.13 0-.93.75-1.68 1.68-1.68h2.09c3.04 0 5.4-2.46 5.4-5.5 0-4.97-4.48-9-10-9z"/></svg>`,
+            metar: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`,
+            password: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3"/></svg>`,
+            lorem: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+            progress: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+            qrcode: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
+            text: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
+            time: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+            about: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+            theme: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+            accent: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>`,
+            settings: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`
+        };
+
+        const itemsList = [
+            { id: 'home', title: 'Home', category: 'Navigation', icon: icons.home, url: 'https://astrong.xyz' },
+            { id: 'schedule', title: 'Schedule Portal', category: 'Navigation', icon: icons.schedule, url: 'https://schedule.astrong.xyz' },
+            { id: 'starbucks', title: 'Starbucks Schedule', category: 'Navigation', icon: icons.starbucks, url: 'https://schedule.astrong.xyz/starbucks/' },
+            { id: 'utility', title: 'Utility Portal', category: 'Navigation', icon: icons.utility, url: 'https://utility.astrong.xyz' },
+            { id: 'contrast', title: 'Color Contrast & Accessibility Tester', category: 'Utilities', icon: icons.contrast, url: 'https://utility.astrong.xyz/contrast/' },
+            { id: 'metar', title: 'METAR Aviation Weather', category: 'Utilities', icon: icons.metar, url: 'https://utility.astrong.xyz/metar/' },
+            { id: 'password', title: 'Password Generator', category: 'Utilities', icon: icons.password, url: 'https://utility.astrong.xyz/password/' },
+            { id: 'lorem', title: 'Lorem Ipsum Generator', category: 'Utilities', icon: icons.lorem, url: 'https://utility.astrong.xyz/lorem/' },
+            { id: 'progress', title: 'Progress Tracker', category: 'Utilities', icon: icons.progress, url: 'https://utility.astrong.xyz/progress/' },
+            { id: 'qrcode', title: 'QR Code Generator', category: 'Utilities', icon: icons.qrcode, url: 'https://utility.astrong.xyz/qrcode/' },
+            { id: 'text', title: 'Text Tools', category: 'Utilities', icon: icons.text, url: 'https://utility.astrong.xyz/text/' },
+            { id: 'time', title: 'Time & Timezone', category: 'Utilities', icon: icons.time, url: 'https://utility.astrong.xyz/time/' },
+            { id: 'about', title: 'About Austin Strong', category: 'Navigation', icon: icons.about, url: 'https://astrong.xyz/about/' },
+            { id: 'theme-toggle', title: 'Toggle Light / Dark Mode', category: 'Actions', icon: icons.theme, action: () => {
+                const currentMode = localStorage.getItem('astrong_mode') || 'dark';
+                const newMode = currentMode === 'light' ? 'dark' : 'light';
+                applyTheme(null, newMode);
+                if (window.showToast) window.showToast(`Switched to ${newMode} mode`);
+            }},
+            { id: 'accent-cycle', title: 'Cycle Accent Color', category: 'Actions', icon: icons.accent, action: () => cycleThemeAccent() },
+            { id: 'settings', title: 'Open Settings', category: 'Actions', icon: icons.settings, action: () => {
+                const btn = document.getElementById('settings-btn') || document.getElementById('settings-toggle');
+                if (btn) btn.click();
+            }}
+        ];
+
+        function renderResults() {
+            resultsContainer.innerHTML = '';
+            const query = input.value.trim().toLowerCase();
+            filteredItems = itemsList.filter(item => 
+                item.title.toLowerCase().includes(query) || 
+                item.category.toLowerCase().includes(query)
+            );
+
+            if (filteredItems.length === 0) {
+                resultsContainer.innerHTML = `<div class="cmd-palette-no-results">No matching commands or pages found.</div>`;
+                return;
+            }
+
+            if (selectedIndex >= filteredItems.length) selectedIndex = 0;
+            if (selectedIndex < 0) selectedIndex = filteredItems.length - 1;
+
+            filteredItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `cmd-palette-item ${index === selectedIndex ? 'selected' : ''}`;
+                div.innerHTML = `
+                    <div class="cmd-palette-item-left">
+                        <span class="cmd-palette-item-icon">${item.icon}</span>
+                        <span class="cmd-palette-item-title">${item.title}</span>
+                    </div>
+                    <span class="cmd-palette-item-category">${item.category}</span>
+                `;
+                div.addEventListener('click', () => {
+                    executeItem(item);
+                });
+                div.addEventListener('mouseenter', () => {
+                    selectedIndex = index;
+                    updateSelection();
+                });
+                resultsContainer.appendChild(div);
+            });
+
+            const selectedEl = resultsContainer.children[selectedIndex];
+            if (selectedEl) {
+                selectedEl.scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function updateSelection() {
+            const children = resultsContainer.children;
+            for (let i = 0; i < children.length; i++) {
+                if (i === selectedIndex) {
+                    children[i].classList.add('selected');
+                    children[i].scrollIntoView({ block: 'nearest' });
+                } else {
+                    children[i].classList.remove('selected');
+                }
+            }
+        }
+
+        function executeItem(item) {
+            closeCommandPalette();
+            if (item.url) {
+                window.location.href = item.url;
+            } else if (item.action) {
+                item.action();
+            }
+        }
+
+        input.addEventListener('input', () => {
+            selectedIndex = 0;
+            renderResults();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (filteredItems.length > 0) {
+                    selectedIndex = (selectedIndex + 1) % filteredItems.length;
+                    updateSelection();
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (filteredItems.length > 0) {
+                    selectedIndex = (selectedIndex - 1 + filteredItems.length) % filteredItems.length;
+                    updateSelection();
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (filteredItems[selectedIndex]) {
+                    executeItem(filteredItems[selectedIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                closeCommandPalette();
+            }
+        });
+
+        function openCommandPalette() {
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            input.value = '';
+            selectedIndex = 0;
+            renderResults();
+            setTimeout(() => input.focus(), 20);
+        }
+
+        function closeCommandPalette() {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function toggleCommandPalette() {
+            if (modal.classList.contains('active')) {
+                closeCommandPalette();
+            } else {
+                openCommandPalette();
+            }
+        }
+
+        window.openCommandPalette = openCommandPalette;
+        window.closeCommandPalette = closeCommandPalette;
+        window.toggleCommandPalette = toggleCommandPalette;
+
+        overlay.addEventListener('click', closeCommandPalette);
+
+        document.querySelectorAll('#search-btn, .search-btn, [data-action="cmd-palette"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openCommandPalette();
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCommandPalette);
+    } else {
+        initCommandPalette();
     }
 })();
