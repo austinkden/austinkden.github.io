@@ -587,6 +587,8 @@ h1 {
     align-items: center;
     justify-content: space-between;
     font-size: 0.85rem;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .shortcut-item kbd {
@@ -605,6 +607,8 @@ h1 {
 
 .shortcut-item span {
     color: var(--on-surface-variant);
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* Settings Button, Settings Modal & Appearance Toggle Styles */
