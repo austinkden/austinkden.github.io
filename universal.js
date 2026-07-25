@@ -754,7 +754,7 @@
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justify: 'space-between',
+                justifyContent: 'space-between',
                 gap: '12px',
                 transition: 'background-color 0.15s ease, color 0.15s ease',
                 userSelect: 'none',
@@ -766,7 +766,41 @@
             btn.appendChild(labelSpan);
 
             let submenu = null;
+            let submenuInner = null;
             let leaveTimeout = null;
+
+            function positionSubmenu() {
+                if (!submenu || !submenuInner) return;
+                submenu.style.display = 'block';
+
+                const wrapperRect = wrapper.getBoundingClientRect();
+                const submenuWidth = submenuInner.offsetWidth || 170;
+                const submenuHeight = submenuInner.offsetHeight || 180;
+
+                let left = wrapperRect.right + 6;
+                if (left + submenuWidth > window.innerWidth - 8) {
+                    left = wrapperRect.left - submenuWidth - 6;
+                }
+                if (left < 8) {
+                    left = Math.max(8, window.innerWidth - submenuWidth - 8);
+                }
+
+                let top = wrapperRect.top - 6;
+                if (top + submenuHeight > window.innerHeight - 8) {
+                    top = window.innerHeight - submenuHeight - 8;
+                }
+                if (top < 8) {
+                    top = 8;
+                }
+
+                Object.assign(submenu.style, {
+                    position: 'fixed',
+                    left: `${left}px`,
+                    top: `${top}px`,
+                    paddingLeft: '0px',
+                    paddingRight: '0px'
+                });
+            }
 
             if (it.children && it.children.length > 0) {
                 const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -780,6 +814,7 @@
                 chevron.setAttribute('stroke-linejoin', 'round');
                 chevron.style.opacity = '0.7';
                 chevron.style.flexShrink = '0';
+                chevron.style.transition = 'transform 0.2s ease';
 
                 const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
                 polyline.setAttribute('points', '9 18 15 12 9 6');
@@ -789,17 +824,14 @@
                 submenu = document.createElement('div');
                 submenu.className = 'custom-context-submenu';
                 Object.assign(submenu.style, {
-                    position: 'absolute',
-                    top: '-6px',
-                    left: '100%',
-                    paddingLeft: '10px',
+                    position: 'fixed',
                     zIndex: '10001',
                     display: 'none',
                     userSelect: 'none',
                     webkitUserSelect: 'none'
                 });
 
-                const submenuInner = document.createElement('div');
+                submenuInner = document.createElement('div');
                 submenuInner.className = 'custom-context-submenu-inner';
                 Object.assign(submenuInner.style, {
                     background: 'var(--surface, #1d1b20)',
@@ -822,6 +854,30 @@
             }
 
             btn.addEventListener('click', (e) => {
+                const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
+                                       ('ontouchstart' in window) ||
+                                       (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024) ||
+                                       (e.pointerType === 'touch');
+
+                if (it.children && it.children.length > 0 && isMobileDevice) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isVisible = submenu && submenu.style.display === 'block';
+                    
+                    // Close all other submenus
+                    document.querySelectorAll('.custom-context-submenu').forEach(s => {
+                        if (s !== submenu) s.style.display = 'none';
+                    });
+
+                    if (isVisible) {
+                        if (submenu) submenu.style.display = 'none';
+                    } else {
+                        positionSubmenu();
+                    }
+                    return;
+                }
+
                 if (it.action) {
                     it.action(e);
                     menu.style.display = 'none';
@@ -830,6 +886,10 @@
             });
 
             wrapper.addEventListener('mouseenter', () => {
+                const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
+                                       ('ontouchstart' in window && window.innerWidth <= 1024);
+                if (isMobileDevice) return;
+
                 if (leaveTimeout) {
                     clearTimeout(leaveTimeout);
                     leaveTimeout = null;
@@ -839,40 +899,21 @@
 
                 const parent = wrapper.parentElement;
                 if (parent) {
-                    parent.querySelectorAll('.custom-context-submenu').forEach(s => {
+                    document.querySelectorAll('.custom-context-submenu').forEach(s => {
                         if (s !== submenu) s.style.display = 'none';
                     });
                 }
 
                 if (submenu) {
-                    submenu.style.display = 'block';
-
-                    const wrapperRect = wrapper.getBoundingClientRect();
-                    const submenuWidth = submenu.offsetWidth || 180;
-                    const submenuHeight = submenu.offsetHeight || 150;
-
-                    if (wrapperRect.right + submenuWidth + 12 > window.innerWidth) {
-                        submenu.style.left = 'auto';
-                        submenu.style.right = '100%';
-                        submenu.style.paddingLeft = '0px';
-                        submenu.style.paddingRight = '10px';
-                    } else {
-                        submenu.style.left = '100%';
-                        submenu.style.right = 'auto';
-                        submenu.style.paddingLeft = '10px';
-                        submenu.style.paddingRight = '0px';
-                    }
-
-                    if (wrapperRect.top + submenuHeight + 8 > window.innerHeight) {
-                        const overflow = (wrapperRect.top + submenuHeight + 8) - window.innerHeight;
-                        submenu.style.top = `${-6 - overflow}px`;
-                    } else {
-                        submenu.style.top = '-6px';
-                    }
+                    positionSubmenu();
                 }
             });
 
             wrapper.addEventListener('mouseleave', () => {
+                const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
+                                       ('ontouchstart' in window && window.innerWidth <= 1024);
+                if (isMobileDevice) return;
+
                 leaveTimeout = setTimeout(() => {
                     btn.style.background = 'transparent';
                     btn.style.color = 'var(--on-surface, #e6e1e5)';
@@ -900,28 +941,38 @@
             // Clear the menu content so we can rebuild dynamically
             menu.innerHTML = '';
 
+            const isMobile = window.matchMedia('(max-width: 768px)').matches ||
+                             ('ontouchstart' in window && window.innerWidth <= 1024) ||
+                             (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024);
+
+            const scheduleChildren = [
+                ...(isMobile ? [{ label: 'Schedule Portal', action: () => window.location.href = 'https://schedule.astrong.xyz' }] : []),
+                { label: 'Starbucks Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/starbucks' },
+                { label: 'Find a Time', action: () => window.open('https://calendar.app.google/j4EnNgkWWep23ZZC7', '_blank') }
+            ];
+
+            const utilityChildren = [
+                ...(isMobile ? [{ label: 'Utility Portal', action: () => window.location.href = 'https://utility.astrong.xyz' }] : []),
+                { label: 'Lorem Ipsum', action: () => window.location.href = 'https://utility.astrong.xyz/lorem' },
+                { label: 'METAR Weather', action: () => window.location.href = 'https://utility.astrong.xyz/metar' },
+                { label: 'Password Generator', action: () => window.location.href = 'https://utility.astrong.xyz/password' },
+                { label: 'Progress Tracker', action: () => window.location.href = 'https://utility.astrong.xyz/progress' },
+                { label: 'QR Code Generator', action: () => window.location.href = 'https://utility.astrong.xyz/qrcode' },
+                { label: 'Text Tools', action: () => window.location.href = 'https://utility.astrong.xyz/text' },
+                { label: 'Time Converter', action: () => window.location.href = 'https://utility.astrong.xyz/time' }
+            ];
+
             const items = [
                 { label: 'Home', action: () => window.location.href = 'https://astrong.xyz' },
                 {
                     label: 'Schedule',
                     action: () => window.location.href = 'https://schedule.astrong.xyz',
-                    children: [
-                        { label: 'Starbucks Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/starbucks' },
-                        { label: 'Find a Time', action: () => window.open('https://calendar.app.google/j4EnNgkWWep23ZZC7', '_blank') }
-                    ]
+                    children: scheduleChildren
                 },
                 {
                     label: 'Utilities',
                     action: () => window.location.href = 'https://utility.astrong.xyz',
-                    children: [
-                        { label: 'Lorem Ipsum', action: () => window.location.href = 'https://utility.astrong.xyz/lorem' },
-                        { label: 'METAR Weather', action: () => window.location.href = 'https://utility.astrong.xyz/metar' },
-                        { label: 'Password Generator', action: () => window.location.href = 'https://utility.astrong.xyz/password' },
-                        { label: 'Progress Tracker', action: () => window.location.href = 'https://utility.astrong.xyz/progress' },
-                        { label: 'QR Code Generator', action: () => window.location.href = 'https://utility.astrong.xyz/qrcode' },
-                        { label: 'Text Tools', action: () => window.location.href = 'https://utility.astrong.xyz/text' },
-                        { label: 'Time Converter', action: () => window.location.href = 'https://utility.astrong.xyz/time' }
-                    ]
+                    children: utilityChildren
                 },
                 {
                     label: 'About',
@@ -1015,7 +1066,7 @@
         });
 
         window.addEventListener('click', (e) => {
-            if (!menu.contains(e.target)) {
+            if (!menu.contains(e.target) && !e.target.closest('.custom-context-submenu')) {
                 menu.style.display = 'none';
                 document.querySelectorAll('.custom-context-submenu').forEach(s => s.style.display = 'none');
             }
