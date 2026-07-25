@@ -977,10 +977,18 @@
     function initCommandPalette() {
         if (document.getElementById('astrong-cmd-palette')) return;
 
+        if (!document.getElementById('jetbrains-mono-font-link')) {
+            const fontLink = document.createElement('link');
+            fontLink.id = 'jetbrains-mono-font-link';
+            fontLink.rel = 'stylesheet';
+            fontLink.href = 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap';
+            document.head.appendChild(fontLink);
+        }
+
         const style = document.createElement('style');
         style.id = 'astrong-cmd-palette-style';
         style.textContent = `
-            @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
             .cmd-palette-modal {
                 position: fixed;
@@ -1024,6 +1032,7 @@
                 overflow: hidden;
                 box-shadow: none;
                 animation: cmdPaletteFadeIn 0.15s ease-out;
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             }
             @keyframes cmdPaletteFadeIn {
                 from { opacity: 0; transform: translateY(-8px); }
@@ -1045,7 +1054,7 @@
                 background: transparent;
                 border: none;
                 outline: none;
-                font-family: inherit;
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
                 font-size: 1rem;
                 color: var(--on-surface, #e6e1e5);
             }
@@ -1096,6 +1105,7 @@
             .cmd-palette-item-title {
                 font-size: 0.9rem;
                 font-weight: 500;
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             }
             .cmd-palette-item-category {
                 font-size: 0.75rem;
@@ -1104,6 +1114,7 @@
                 background: var(--surface-variant, #2d2a33);
                 padding: 2px 8px;
                 border-radius: 12px;
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             }
             .cmd-palette-item.selected {
                 background-color: var(--primary-container, #4527a0);
@@ -1118,6 +1129,7 @@
                 text-align: center;
                 font-size: 0.88rem;
                 color: var(--on-surface-variant, #cac4d0);
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             }
             .cmd-palette-footer {
                 display: flex;
@@ -1130,6 +1142,7 @@
                 color: var(--on-surface-variant, #cac4d0);
                 user-select: none;
                 -webkit-user-select: none;
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             }
             .cmd-palette-footer kbd {
                 font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
