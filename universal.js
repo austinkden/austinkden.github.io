@@ -544,7 +544,7 @@
                 isLongPress = true;
                 reverseRotation();
                 temporarySpeedUp();
-            }, 600);
+            }, 250);
         });
 
         wrapper.addEventListener('pointerup', () => {
