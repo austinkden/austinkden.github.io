@@ -750,80 +750,151 @@ document.addEventListener('DOMContentLoaded', () => {
             statusText.textContent = label;
         }
 
-        function processCalendarItems(items, now) {
-            let foundAtWork = false;
-            let foundBusy = false;
+        function parseCalendarEvents(items) {
+            const events = [];
+            if (!items || !Array.isArray(items)) return events;
 
-            if (items && Array.isArray(items)) {
-                for (const event of items) {
-                    if (event.status === 'cancelled') continue;
-                    
-                    let start, end;
-                    if (event.start && event.start.dateTime) {
-                        start = new Date(event.start.dateTime);
-                        end = new Date(event.end.dateTime);
-                    } else if (event.start && event.start.date) {
-                        // Parse all-day events in local timezone midnight
-                        const [sy, sm, sd] = event.start.date.split('-').map(Number);
-                        const [ey, em, ed] = event.end.date.split('-').map(Number);
-                        start = new Date(sy, sm - 1, sd, 0, 0, 0);
-                        end = new Date(ey, em - 1, ed, 0, 0, 0);
-                    } else {
-                        continue;
-                    }
+            for (const event of items) {
+                if (event.status === 'cancelled') continue;
 
-                    if (start <= now && now < end) {
-                        const summary = (event.summary || '').trim().toLowerCase();
-                        const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
-                        const isBusy = event.transparency !== 'transparent';
+                let start, end;
+                if (event.start && event.start.dateTime) {
+                    start = new Date(event.start.dateTime);
+                    end = new Date(event.end.dateTime);
+                } else if (event.start && event.start.date) {
+                    // Parse all-day events in local timezone midnight
+                    const [sy, sm, sd] = event.start.date.split('-').map(Number);
+                    const [ey, em, ed] = event.end.date.split('-').map(Number);
+                    start = new Date(sy, sm - 1, sd, 0, 0, 0);
+                    end = new Date(ey, em - 1, ed, 0, 0, 0);
+                } else {
+                    continue;
+                }
 
-                        if (isStarbucks) {
-                            foundAtWork = true;
-                            break; // Starbucks shift takes top priority
-                        } else if (isBusy) {
-                            foundBusy = true;
-                        }
-                    }
+                const summary = (event.summary || '').trim().toLowerCase();
+                const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
+                const isBusy = event.transparency !== 'transparent';
+
+                if (isStarbucks) {
+                    events.push({ type: 'at-work', start, end });
+                } else if (isBusy) {
+                    events.push({ type: 'busy', start, end });
                 }
             }
-            return { foundAtWork, foundBusy };
+            return events;
         }
 
-        function checkFallbackSchedule(now) {
+        function parseFallbackEvents(now) {
             const schedule = window.STARBUCKS_SCHEDULE || FALLBACK_STARBUCKS_SCHEDULE;
             const pad = (n) => String(n).padStart(2, '0');
-            const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-            
-            const dayData = schedule[dateStr];
-            if (dayData) {
-                const events = Array.isArray(dayData) ? dayData : [dayData];
-                const currentMin = now.getHours() * 60 + now.getMinutes();
+            const events = [];
 
-                for (const item of events) {
+            // Check yesterday, today, and tomorrow to properly capture overnight or adjacent shifts
+            for (let dayOffset = -1; dayOffset <= 1; dayOffset++) {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
+                const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+                const dayData = schedule[dateStr];
+                if (!dayData) continue;
+
+                const dayItems = Array.isArray(dayData) ? dayData : [dayData];
+                for (const item of dayItems) {
                     if (!item.start || !item.end) continue;
                     const [sh, sm] = item.start.split(':').map(Number);
                     const [eh, em] = item.end.split(':').map(Number);
-                    const startMin = sh * 60 + sm;
-                    const endMin = eh * 60 + em;
 
-                    if (currentMin >= startMin && currentMin < endMin) {
-                        const notes = (item.notes || '').toLowerCase();
-                        const title = (item.title || '').toLowerCase();
-                        const isBusyFlag = item.type === 'busy' || item.busy === true || item.isStarbucks === false || item.status === 'busy' || notes.includes('busy') || title.includes('busy');
-                        if (isBusyFlag) {
-                            return { status: 'busy', label: 'Busy' };
+                    const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), sh, sm, 0);
+                    let end = new Date(d.getFullYear(), d.getMonth(), d.getDate(), eh, em, 0);
+                    if (end <= start) {
+                        end = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, eh, em, 0);
+                    }
+
+                    const notes = (item.notes || '').toLowerCase();
+                    const title = (item.title || '').toLowerCase();
+                    const isBusyFlag = item.type === 'busy' || item.busy === true || item.isStarbucks === false || item.status === 'busy' || notes.includes('busy') || title.includes('busy');
+                    const type = isBusyFlag ? 'busy' : 'at-work';
+
+                    events.push({ type, start, end });
+                }
+            }
+            return events;
+        }
+
+        function formatDurationText(totalMinutes) {
+            const mins = Math.max(1, totalMinutes);
+            const hours = Math.floor(mins / 60);
+            const remainingMins = mins % 60;
+
+            const parts = [];
+            if (hours > 0) {
+                parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
+            }
+            if (remainingMins > 0 || hours === 0) {
+                parts.push(`${remainingMins} ${remainingMins === 1 ? 'minute' : 'minutes'}`);
+            }
+
+            return parts.join(' and ');
+        }
+
+        function evaluateStatusFromEvents(events, now) {
+            let activeAtWork = null;
+            let activeBusy = null;
+            let upcomingEvent = null;
+
+            for (const evt of events) {
+                if (evt.start <= now && now < evt.end) {
+                    if (evt.type === 'at-work') {
+                        if (!activeAtWork || evt.end > activeAtWork.end) {
+                            activeAtWork = evt;
                         }
-                        return { status: 'at-work', label: 'At work' };
+                    } else if (evt.type === 'busy') {
+                        if (!activeBusy || evt.end > activeBusy.end) {
+                            activeBusy = evt;
+                        }
+                    }
+                } else if (evt.start > now) {
+                    if (!upcomingEvent || evt.start < upcomingEvent.start) {
+                        upcomingEvent = evt;
                     }
                 }
             }
-            return null;
+
+            const activeEvent = activeAtWork || activeBusy;
+
+            if (activeEvent) {
+                const minsRemaining = Math.ceil((activeEvent.end.getTime() - now.getTime()) / 60000);
+                const statusType = activeEvent.type;
+                const prefix = statusType === 'at-work' ? 'At work' : 'Busy';
+                const durationStr = formatDurationText(minsRemaining);
+
+                return {
+                    status: statusType,
+                    label: `${prefix} for another ${durationStr}`
+                };
+            } else {
+                const baseStatus = window.isSpotifyPlaying ? 'listening' : 'available';
+                const baseLabel = window.isSpotifyPlaying ? 'Listening to music' : 'Available';
+
+                if (upcomingEvent) {
+                    const minsUntilStart = Math.ceil((upcomingEvent.start.getTime() - now.getTime()) / 60000);
+                    if (minsUntilStart <= 60 && minsUntilStart >= 1) {
+                        const unit = minsUntilStart === 1 ? 'minute' : 'minutes';
+                        return {
+                            status: baseStatus,
+                            label: `Available for ${minsUntilStart} more ${unit}`
+                        };
+                    }
+                }
+
+                return {
+                    status: baseStatus,
+                    label: baseLabel
+                };
+            }
         }
 
         async function fetchCalendarStatus() {
             const now = new Date();
-            let foundAtWork = false;
-            let foundBusy = false;
+            let events = [];
             let apiSuccess = false;
 
             if (!apiDisabled) {
@@ -837,9 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         throw new Error(`HTTP ${res.status}`);
                     }
                     const data = await res.json();
-                    const result = processCalendarItems(data.items, now);
-                    foundAtWork = result.foundAtWork;
-                    foundBusy = result.foundBusy;
+                    events = parseCalendarEvents(data.items);
                     apiSuccess = true;
                 } catch (err) {
                     // Try live serverless proxy endpoint /api/calendar
@@ -849,9 +918,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (proxyRes.ok) {
                             const proxyData = await proxyRes.json();
                             if (proxyData.items) {
-                                const result = processCalendarItems(proxyData.items, now);
-                                foundAtWork = result.foundAtWork;
-                                foundBusy = result.foundBusy;
+                                events = parseCalendarEvents(proxyData.items);
                                 apiSuccess = true;
                             }
                         }
@@ -867,28 +934,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!apiSuccess) {
-                const fallback = checkFallbackSchedule(now);
-                if (fallback) {
-                    if (fallback.status === 'at-work') foundAtWork = true;
-                    if (fallback.status === 'busy') foundBusy = true;
-                }
+                events = parseFallbackEvents(now);
             }
 
-            if (foundAtWork) {
-                updateUI('at-work', 'At work');
-            } else if (foundBusy) {
-                updateUI('busy', 'Busy');
-            } else if (window.isSpotifyPlaying) {
-                updateUI('listening', 'Listening to music');
-            } else {
-                updateUI('available', 'Available');
-            }
+            const result = evaluateStatusFromEvents(events, now);
+            updateUI(result.status, result.label);
         }
 
         window.updateLiveStatus = fetchCalendarStatus;
 
+        function scheduleNextAlignedUpdate() {
+            fetchCalendarStatus();
+            const now = new Date();
+            const delay = 10000 - ((now.getSeconds() % 10) * 1000 + now.getMilliseconds());
+            setTimeout(scheduleNextAlignedUpdate, delay);
+        }
+
         fetchCalendarStatus();
-        setInterval(fetchCalendarStatus, 10000);
+        const initialNow = new Date();
+        const initialDelay = 10000 - ((initialNow.getSeconds() % 10) * 1000 + initialNow.getMilliseconds());
+        setTimeout(scheduleNextAlignedUpdate, initialDelay);
     }
 
     function initHelpModal() {
