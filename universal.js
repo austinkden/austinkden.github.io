@@ -1168,7 +1168,11 @@
             }
             .cmd-palette-item.selected .cmd-palette-item-category {
                 background-color: rgba(255, 255, 255, 0.15);
-                color: #ffffff;
+                color: var(--on-primary-container, #ffffff);
+            }
+            :root.light-mode .cmd-palette-item.selected .cmd-palette-item-category {
+                background-color: rgba(0, 0, 0, 0.08);
+                color: var(--on-primary-container, #1d1b20);
             }
             .cmd-palette-no-results {
                 padding: 1.5rem;
