@@ -1,7 +1,5 @@
 // universal.js - Loads and applies the persistent accent theme across all pages
 (function() {
-    console.log("Version 0.3.1");
-
     // 0. Universal Loading Screen
     (function() {
         let loader = document.getElementById('astrong-loading-screen');
