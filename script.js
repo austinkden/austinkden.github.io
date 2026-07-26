@@ -307,19 +307,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Desktop Right-Click (contextmenu)
         wrapper.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            if (!hasReversedThisPress) {
-                hasReversedThisPress = true;
-                reverseRotation();
-            }
-        });
-
-        // Mobile Long Press & Desktop Right-Click / Long Left-Click using PointerEvents
-        wrapper.addEventListener('pointerdown', (e) => {
-            if (e.pointerType === 'mouse' && e.button === 2) {
+            e.stopPropagation();
+            const isTouch = e.pointerType === 'touch' || ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches);
+            if (isTouch) {
                 if (!hasReversedThisPress) {
                     hasReversedThisPress = true;
                     reverseRotation();
                 }
+            } else {
+                reverseRotation();
+            }
+        });
+
+        // Mobile Long Press & PointerEvents
+        wrapper.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button === 2) {
                 return;
             }
             if (e.pointerType === 'mouse' && e.button !== 0) {
@@ -330,13 +332,15 @@ document.addEventListener('DOMContentLoaded', () => {
             startX = e.clientX;
             startY = e.clientY;
 
-            longPressTimer = setTimeout(() => {
-                isLongPress = true;
-                if (!hasReversedThisPress) {
-                    hasReversedThisPress = true;
-                    reverseRotation();
-                }
-            }, 250);
+            if (e.pointerType !== 'mouse') {
+                longPressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    if (!hasReversedThisPress) {
+                        hasReversedThisPress = true;
+                        reverseRotation();
+                    }
+                }, 250);
+            }
         });
 
         const cancelPress = () => {

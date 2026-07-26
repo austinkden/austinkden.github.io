@@ -599,14 +599,16 @@
             hasReversedThisPress = false;
             startX = e.clientX;
             startY = e.clientY;
-            longPressTimer = setTimeout(() => {
-                isLongPress = true;
-                if (!hasReversedThisPress) {
-                    hasReversedThisPress = true;
-                    reverseRotation();
-                    temporarySpeedUp();
-                }
-            }, 250);
+            if (e.pointerType !== 'mouse') {
+                longPressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    if (!hasReversedThisPress) {
+                        hasReversedThisPress = true;
+                        reverseRotation();
+                        temporarySpeedUp();
+                    }
+                }, 250);
+            }
         });
 
         wrapper.addEventListener('pointerup', () => {
@@ -640,8 +642,14 @@
         wrapper.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (!hasReversedThisPress) {
-                hasReversedThisPress = true;
+            const isTouch = e.pointerType === 'touch' || ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches);
+            if (isTouch) {
+                if (!hasReversedThisPress) {
+                    hasReversedThisPress = true;
+                    reverseRotation();
+                    temporarySpeedUp();
+                }
+            } else {
                 reverseRotation();
                 temporarySpeedUp();
             }
@@ -773,16 +781,36 @@
                 if (!submenu || !submenuInner) return;
                 submenu.style.display = 'block';
 
+                const menuRect = menu.getBoundingClientRect();
                 const wrapperRect = wrapper.getBoundingClientRect();
                 const submenuWidth = submenuInner.offsetWidth || 170;
                 const submenuHeight = submenuInner.offsetHeight || 180;
 
-                let left = wrapperRect.right + 6;
-                if (left + submenuWidth > window.innerWidth - 8) {
-                    left = wrapperRect.left - submenuWidth - 6;
+                const VISIBLE_GAP = 8;
+                const OVERLAP = 2;
+
+                const menuRight = menuRect.width > 0 ? menuRect.right : wrapperRect.right + 6;
+                const menuLeft = menuRect.width > 0 ? menuRect.left : wrapperRect.left - 6;
+
+                let opensRight = true;
+                if (menuRight + VISIBLE_GAP + submenuWidth > window.innerWidth - 8) {
+                    opensRight = false;
                 }
-                if (left < 8) {
-                    left = Math.max(8, window.innerWidth - submenuWidth - 8);
+
+                let left, paddingLeft, paddingRight;
+
+                if (opensRight) {
+                    const startLeft = wrapperRect.right - OVERLAP;
+                    const targetSubmenuLeft = menuRight + VISIBLE_GAP;
+                    left = startLeft;
+                    paddingLeft = Math.max(0, targetSubmenuLeft - startLeft);
+                    paddingRight = 0;
+                } else {
+                    const targetSubmenuRight = menuLeft - VISIBLE_GAP;
+                    const startRight = wrapperRect.left + OVERLAP;
+                    left = Math.max(8, targetSubmenuRight - submenuWidth);
+                    paddingLeft = 0;
+                    paddingRight = Math.max(0, startRight - (left + submenuWidth));
                 }
 
                 let top = wrapperRect.top - 6;
@@ -797,10 +825,21 @@
                     position: 'fixed',
                     left: `${left}px`,
                     top: `${top}px`,
-                    paddingLeft: '0px',
-                    paddingRight: '0px'
+                    paddingLeft: `${paddingLeft}px`,
+                    paddingRight: `${paddingRight}px`,
+                    paddingTop: '0px',
+                    paddingBottom: '0px'
                 });
             }
+
+            const keepSubmenuAlive = () => {
+                if (leaveTimeout) {
+                    clearTimeout(leaveTimeout);
+                    leaveTimeout = null;
+                }
+                btn.style.backgroundColor = 'var(--surface-variant, #2d2a33)';
+                btn.style.color = 'var(--on-surface, #ffffff)';
+            };
 
             if (it.children && it.children.length > 0) {
                 const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -831,6 +870,32 @@
                     webkitUserSelect: 'none'
                 });
 
+                submenu.addEventListener('mouseenter', () => {
+                    const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
+                                           ('ontouchstart' in window && window.innerWidth <= 1024);
+                    if (isMobileDevice) return;
+
+                    keepSubmenuAlive();
+                });
+
+                submenu.addEventListener('mouseleave', (e) => {
+                    const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
+                                           ('ontouchstart' in window && window.innerWidth <= 1024);
+                    if (isMobileDevice) return;
+
+                    if (e.relatedTarget && (wrapper.contains(e.relatedTarget) || e.relatedTarget === wrapper)) {
+                        return;
+                    }
+
+                    leaveTimeout = setTimeout(() => {
+                        btn.style.backgroundColor = 'transparent';
+                        btn.style.color = 'var(--on-surface, #e6e1e5)';
+                        if (submenu) {
+                            submenu.style.display = 'none';
+                        }
+                    }, 300);
+                });
+
                 submenuInner = document.createElement('div');
                 submenuInner.className = 'custom-context-submenu-inner';
                 Object.assign(submenuInner.style, {
@@ -852,6 +917,18 @@
                 submenu.appendChild(submenuInner);
                 wrapper.appendChild(submenu);
             }
+
+            btn.addEventListener('mouseenter', () => {
+                btn.style.backgroundColor = 'var(--surface-variant, #2d2a33)';
+                btn.style.color = 'var(--on-surface, #ffffff)';
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                if (!submenu || submenu.style.display !== 'block') {
+                    btn.style.backgroundColor = 'transparent';
+                    btn.style.color = 'var(--on-surface, #e6e1e5)';
+                }
+            });
 
             btn.addEventListener('click', (e) => {
                 const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
@@ -890,17 +967,20 @@
                                        ('ontouchstart' in window && window.innerWidth <= 1024);
                 if (isMobileDevice) return;
 
-                if (leaveTimeout) {
-                    clearTimeout(leaveTimeout);
-                    leaveTimeout = null;
-                }
-                btn.style.background = 'var(--surface-variant, #2d2a33)';
-                btn.style.color = 'var(--on-surface, #ffffff)';
+                keepSubmenuAlive();
 
                 const parent = wrapper.parentElement;
                 if (parent) {
-                    document.querySelectorAll('.custom-context-submenu').forEach(s => {
-                        if (s !== submenu) s.style.display = 'none';
+                    parent.querySelectorAll(':scope > .menu-item-wrapper').forEach(sibling => {
+                        if (sibling !== wrapper) {
+                            const sibBtn = sibling.querySelector('.menu-item-btn');
+                            if (sibBtn) {
+                                sibBtn.style.backgroundColor = 'transparent';
+                                sibBtn.style.color = 'var(--on-surface, #e6e1e5)';
+                            }
+                            const sibSub = sibling.querySelector('.custom-context-submenu');
+                            if (sibSub) sibSub.style.display = 'none';
+                        }
                     });
                 }
 
@@ -909,18 +989,22 @@
                 }
             });
 
-            wrapper.addEventListener('mouseleave', () => {
+            wrapper.addEventListener('mouseleave', (e) => {
                 const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
                                        ('ontouchstart' in window && window.innerWidth <= 1024);
                 if (isMobileDevice) return;
 
+                if (submenu && e.relatedTarget && (submenu.contains(e.relatedTarget) || e.relatedTarget === submenu)) {
+                    return;
+                }
+
                 leaveTimeout = setTimeout(() => {
-                    btn.style.background = 'transparent';
+                    btn.style.backgroundColor = 'transparent';
                     btn.style.color = 'var(--on-surface, #e6e1e5)';
                     if (submenu) {
                         submenu.style.display = 'none';
                     }
-                }, 120);
+                }, 300);
             });
 
             wrapper.appendChild(btn);
