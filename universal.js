@@ -76,6 +76,7 @@
         let isSpotifyDecided = !document.getElementById('spotify-widget');
 
         function tryHideLoader() {
+            if (window.__ASTRONG_BANNED__) return;
             if (isWindowLoaded && isSpotifyDecided) {
                 const elapsed = performance.now() - startTime;
                 const remaining = Math.max(0, minDuration - elapsed);
