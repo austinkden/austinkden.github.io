@@ -504,6 +504,11 @@ function enforceBanScreen() {
                 user-select: none !important;
                 -webkit-user-select: none !important;
                 z-index: 2147483648 !important;
+                cursor: pointer !important;
+                transition: color 0.2s ease !important;
+            }
+            .loading-device-id:hover {
+                color: rgba(255, 255, 255, 0.85) !important;
             }
             @keyframes banned-spin {
                 to { transform: rotate(360deg); }

@@ -702,8 +702,14 @@ kbd, code, pre {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 600;
     color: var(--on-surface);
-    user-select: text;
-    -webkit-user-select: text;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.debug-item code:hover {
+    border-color: var(--primary, #8859ff);
 }
 
 /* Settings Button, Settings Modal & Appearance Toggle Styles */

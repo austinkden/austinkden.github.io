@@ -55,6 +55,11 @@
                     user-select: none;
                     -webkit-user-select: none;
                     z-index: 10;
+                    cursor: pointer;
+                    transition: color 0.2s ease;
+                }
+                .loading-device-id:hover {
+                    color: rgba(255, 255, 255, 0.85);
                 }
                 @keyframes loading-spin {
                     to { transform: rotate(360deg); }
@@ -373,7 +378,7 @@
             padding: '0.6rem 1.25rem',
             fontSize: '0.85rem',
             fontWeight: '600',
-            zIndex: '9999',
+            zIndex: '2147483647',
             opacity: '0',
             transition: 'opacity 0.2s ease, transform 0.2s ease',
             pointerEvents: 'none',
@@ -394,6 +399,9 @@
             setTimeout(() => toast.remove(), 200);
         }, duration);
     };
+
+    // Initialize Click to Copy Device ID immediately for both loading screen and help menu
+    initDeviceIdCopyHandler();
 
     // 4. Initialize DOM Features
     document.addEventListener('DOMContentLoaded', () => {
@@ -416,17 +424,18 @@
 
         // C. Triple Click Version Tag Control Panel Trigger
         initVersionTagControlTrigger();
-
-        // D. Click to Copy Device ID in Help Menu
-        initDeviceIdCopyHandler();
     });
 
     function initDeviceIdCopyHandler() {
         document.addEventListener('click', (e) => {
-            const target = e.target.closest('#help-device-id, .debug-item code');
+            const target = e.target.closest('#help-device-id, #loading-device-id, .loading-device-id, .debug-item code, .device-id-display');
             if (!target) return;
 
-            const devId = target.textContent.trim();
+            let devId = target.textContent.trim();
+            if (!devId || devId === '--------') {
+                devId = window.__ASTRONG_DEVICE_ID__ || localStorage.getItem('astrong_device_id') || '';
+            }
+
             if (devId && devId !== '--------') {
                 const notify = () => {
                     if (window.showToast) {
