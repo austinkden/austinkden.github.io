@@ -10,3 +10,6 @@
 	path = about
 	url = https://github.com/austinkden/xyz-about.git
 	ignore = dirty
+[submodule "control"]
+	path = control
+	url = https://github.com/austinkden/xyz-control.git
