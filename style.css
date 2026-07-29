@@ -675,24 +675,35 @@ kbd, code, pre {
     -webkit-user-select: none;
 }
 
-.help-device-id-tag {
-    font-size: 0.75rem;
-    color: var(--on-surface-variant);
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    user-select: text;
-    -webkit-user-select: text;
+.debug-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.help-device-id-tag code {
+.debug-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.debug-item span {
+    color: var(--on-surface-variant);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.debug-item code {
     background-color: var(--surface-variant);
     border: 1px solid var(--outline);
-    border-radius: 4px;
-    padding: 1px 6px;
-    color: var(--primary);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 600;
-    font-size: 0.78rem;
+    color: var(--on-surface);
+    user-select: text;
+    -webkit-user-select: text;
 }
 
 /* Settings Button, Settings Modal & Appearance Toggle Styles */

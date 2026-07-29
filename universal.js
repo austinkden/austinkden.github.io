@@ -12,7 +12,7 @@
     (function() {
         let loader = document.getElementById('astrong-loading-screen');
         const initialDevId = localStorage.getItem('astrong_device_id') || '';
-        const devIdMarkup = `<div class="loading-device-id" id="loading-device-id">ID: <span>${initialDevId}</span></div>`;
+        const devIdMarkup = `<div class="loading-device-id" id="loading-device-id"><span>${initialDevId}</span></div>`;
         if (!loader) {
             // Fallback: If not present in HTML, create and inject it dynamically
             loader = document.createElement('div');
