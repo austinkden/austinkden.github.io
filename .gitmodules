@@ -13,3 +13,4 @@
 [submodule "control"]
 	path = control
 	url = https://github.com/austinkden/xyz-control.git
+	ignore = dirty
