@@ -1,6 +1,6 @@
 // telemetry.js - Device & session telemetry collector for astrong.xyz
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
 
 (async function () {
@@ -95,13 +95,15 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
         }
 
         // Battery Telemetry
-        let batteryInfo = { level: null, charging: null };
+        let batteryInfo = { level: null, charging: null, chargingTime: null, dischargingTime: null };
         try {
             if (typeof navigator.getBattery === 'function') {
                 const battery = await navigator.getBattery();
                 batteryInfo = {
                     level: Math.round(battery.level * 100),
-                    charging: battery.charging
+                    charging: battery.charging,
+                    chargingTime: battery.chargingTime !== Infinity ? battery.chargingTime : null,
+                    dischargingTime: battery.dischargingTime !== Infinity ? battery.dischargingTime : null
                 };
             }
         } catch (e) { }
@@ -116,6 +118,13 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
                 saveData: !!navigator.connection.saveData
             };
         }
+
+        // Display & Preferences Telemetry
+        const orientationType = screen.orientation?.type || (window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+        const orientationAngle = screen.orientation?.angle || 0;
+        const colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'no-preference');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isAutomatedBot = !!navigator.webdriver;
 
         // 4. IP & Geolocation Fetching (with failovers)
         let ipData = {
@@ -182,7 +191,8 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
                 cookiesEnabled: navigator.cookieEnabled,
                 online: navigator.onLine,
                 doNotTrack: navigator.doNotTrack || 'Unspecified',
-                pdfViewerEnabled: navigator.pdfViewerEnabled ?? null
+                pdfViewerEnabled: navigator.pdfViewerEnabled ?? null,
+                webdriver: isAutomatedBot
             },
             operatingSystem: {
                 name: osName,
@@ -197,11 +207,17 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
                 viewportHeight: window.innerHeight,
                 pixelRatio: window.devicePixelRatio || 1,
                 colorDepth: screen.colorDepth || 24,
+                pixelDepth: screen.pixelDepth || 24,
                 cpuCores: navigator.hardwareConcurrency || 'Unknown',
                 deviceMemoryGB: navigator.deviceMemory || 'Unknown',
                 maxTouchPoints: navigator.maxTouchPoints || 0,
                 gpuVendor: gpuVendor,
                 gpuRenderer: gpuRenderer
+            },
+            preferences: {
+                colorScheme: colorScheme,
+                reducedMotion: reducedMotion,
+                orientation: `${orientationType} (${orientationAngle}°)`
             },
             network: {
                 ip: ipData.ip,
@@ -233,9 +249,48 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
             recentViews: arrayUnion(pageVisitEntry)
         };
 
-        // 6. Write to Firestore
+        // 6. Write to Firestore & Check Ban Status
         const deviceRef = doc(db, "devices", deviceId);
+        
+        // Fetch current document to check ban status before/after update
+        const docSnap = await getDoc(deviceRef).catch(() => null);
+        if (docSnap && docSnap.exists()) {
+            const existingData = docSnap.data();
+            if (existingData.isBanned) {
+                enforceBanScreen();
+                return;
+            }
+        }
+
         await setDoc(deviceRef, devicePayload, { merge: true });
+
+        // Double-check if setDoc merged with a banned flag
+        const reCheckSnap = await getDoc(deviceRef).catch(() => null);
+        if (reCheckSnap && reCheckSnap.exists() && reCheckSnap.data().isBanned) {
+            enforceBanScreen();
+        }
+
+    } catch (error) {
+        console.error('[Telemetry] Error logging device telemetry:', error);
+    }
+})();
+
+function enforceBanScreen() {
+    document.body.innerHTML = `
+        <div style="position: fixed; inset: 0; background: #0a0a0c; color: #ef4444; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999999; font-family: 'Google Sans Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 2rem; user-select: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hammer" style="margin-bottom: 1.5rem; opacity: 0.9;">
+                <path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/>
+                <path d="M17.64 15 22 10.64"/>
+                <path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25V7c0-.55-.45-1-1-1h-1.21c-.85 0-1.65-.33-2.25-.93L13.02 3.82a1 1 0 0 0-1.41 0L8.85 6.58a1 1 0 0 0 0 1.41l5.96 5.96a1 1 0 0 0 1.41 0l4.69-2.25Z"/>
+            </svg>
+            <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; color: #f87171; margin-bottom: 0.5rem;">Access Suspended</h1>
+            <p style="font-size: 1rem; color: #a0a0a0; max-width: 440px; line-height: 1.6;">
+                This device has been restricted from accessing <strong>astrong.xyz</strong> services.
+            </p>
+        </div>
+    `;
+    window.stop && window.stop();
+}
 
     } catch (error) {
         console.error('[Telemetry] Error logging device telemetry:', error);
