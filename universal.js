@@ -4,7 +4,7 @@
     if (!document.querySelector('script[src*="telemetry.js"]')) {
         const telScript = document.createElement('script');
         telScript.type = 'module';
-        telScript.src = 'https://astrong.xyz/telemetry.js';
+        telScript.src = '/telemetry.js';
         document.head.appendChild(telScript);
     }
 
@@ -98,13 +98,15 @@
 
         function tryHideLoader() {
             if (window.__ASTRONG_BANNED__) return;
-            if (isWindowLoaded && isSpotifyDecided) {
+            const isBanVerified = window.__ASTRONG_BAN_VERIFIED__ === true;
+            if (isWindowLoaded && isSpotifyDecided && isBanVerified) {
                 const elapsed = performance.now() - startTime;
                 const remaining = Math.max(0, minDuration - elapsed);
                 setTimeout(() => {
+                    if (window.__ASTRONG_BANNED__) return;
                     loader.classList.add('fade-out');
                     setTimeout(() => {
-                        if (loader.parentNode) {
+                        if (loader.parentNode && !window.__ASTRONG_BANNED__) {
                             loader.parentNode.removeChild(loader);
                         }
                     }, 300);
@@ -114,6 +116,10 @@
 
         window.addEventListener('load', () => {
             isWindowLoaded = true;
+            tryHideLoader();
+        });
+
+        window.addEventListener('astrong-ban-verified', () => {
             tryHideLoader();
         });
 
@@ -128,14 +134,15 @@
             }
         }
         
-        // Safety fallback in case resources take too long to load
+        // Safety fallback in case network resources take long
         setTimeout(() => {
             if (!loader.classList.contains('fade-out')) {
                 isWindowLoaded = true;
                 isSpotifyDecided = true;
+                window.__ASTRONG_BAN_VERIFIED__ = true;
                 tryHideLoader();
             }
-        }, 3000);
+        }, 2500);
     })();
     
     // Cookie helpers
