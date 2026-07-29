@@ -28,6 +28,14 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
         console.log(`[Telemetry] Active Device ID: ${deviceId}`);
 
         function syncDeviceIdUI() {
+            const loader = document.getElementById('astrong-loading-screen');
+            if (loader && !loader.querySelector('#loading-device-id')) {
+                const idDiv = document.createElement('div');
+                idDiv.className = 'loading-device-id';
+                idDiv.id = 'loading-device-id';
+                idDiv.innerHTML = `<span>${deviceId}</span>`;
+                loader.appendChild(idDiv);
+            }
             const displays = document.querySelectorAll('#loading-device-id span, #help-device-id, .device-id-display');
             displays.forEach(el => {
                 el.textContent = deviceId;
