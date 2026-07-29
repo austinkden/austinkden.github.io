@@ -249,6 +249,10 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
             recentViews: arrayUnion(pageVisitEntry)
         };
 
+        // 6. Write Initial Telemetry Record to Firestore
+        const deviceRef = doc(db, "devices", deviceId);
+        await setDoc(deviceRef, devicePayload, { merge: true });
+
         // 7. Periodic Telemetry Heartbeat & User Activity Listeners (Every 30s & on interaction)
         async function sendHeartbeat() {
             try {
