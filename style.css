@@ -529,6 +529,9 @@ h1 {
     position: relative;
     width: 100%;
     max-width: 420px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     background-color: var(--surface);
     border: 1px solid var(--outline);
     border-radius: 24px;
@@ -554,6 +557,7 @@ h1 {
     align-items: center;
     padding: 1.25rem 1.5rem 0.75rem 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
 }
 
 .help-modal-title {
@@ -590,6 +594,9 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 .help-section {
@@ -727,10 +734,14 @@ kbd, code, pre {
     position: relative;
     width: 100%;
     max-width: 420px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     background-color: var(--surface);
     border: 1px solid var(--outline);
     border-radius: 24px;
     z-index: 1001;
+    overflow: hidden;
     animation: settingsModalFadeIn 0.2s ease-out;
 }
 
@@ -751,6 +762,7 @@ kbd, code, pre {
     align-items: center;
     padding: 1.25rem 1.5rem 0.75rem 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
 }
 
 :root.light-mode .settings-modal-header {
@@ -795,6 +807,9 @@ kbd, code, pre {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 .settings-section {
@@ -1003,6 +1018,7 @@ kbd, code, pre {
     align-items: center;
     padding: 1rem 1.5rem 1.5rem 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
 }
 
 :root.light-mode .help-modal-footer {
