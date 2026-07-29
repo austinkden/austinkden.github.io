@@ -384,7 +384,32 @@
 
         // B. Context Menu
         initContextMenu();
+
+        // C. Triple Click Version Tag Control Panel Trigger
+        initVersionTagControlTrigger();
     });
+
+    function initVersionTagControlTrigger() {
+        let versionClickCount = 0;
+        let versionClickTimer = null;
+
+        document.addEventListener('click', (e) => {
+            const versionTag = e.target.closest('.version-tag');
+            if (!versionTag) return;
+
+            versionClickCount++;
+            if (versionClickTimer) clearTimeout(versionClickTimer);
+
+            if (versionClickCount >= 3) {
+                versionClickCount = 0;
+                window.location.href = 'https://control.astrong.xyz';
+            } else {
+                versionClickTimer = setTimeout(() => {
+                    versionClickCount = 0;
+                }, 500);
+            }
+        });
+    }
 
     function injectSvgDefs() {
         if (document.getElementById('nine-sided-cookie')) return;
