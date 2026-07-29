@@ -675,6 +675,26 @@ kbd, code, pre {
     -webkit-user-select: none;
 }
 
+.help-device-id-tag {
+    font-size: 0.75rem;
+    color: var(--on-surface-variant);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.help-device-id-tag code {
+    background-color: var(--surface-variant);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
 /* Settings Button, Settings Modal & Appearance Toggle Styles */
 .settings-btn {
     background: transparent;

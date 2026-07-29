@@ -9,11 +9,33 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 1. Device & Session ID Setup
+        // 1. Device & Session ID Setup (8-character alphanumeric uppercase format)
+        function generate8CharDeviceId() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let res = '';
+            for (let i = 0; i < 8; i++) {
+                res += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return res;
+        }
+
         let deviceId = localStorage.getItem('astrong_device_id');
-        if (!deviceId) {
-            deviceId = 'dev_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        if (!deviceId || !/^[A-Z0-9]{8}$/.test(deviceId)) {
+            deviceId = generate8CharDeviceId();
             localStorage.setItem('astrong_device_id', deviceId);
+        }
+        window.__ASTRONG_DEVICE_ID__ = deviceId;
+        console.log(`[Telemetry] Active Device ID: ${deviceId}`);
+
+        function syncDeviceIdUI() {
+            const displays = document.querySelectorAll('#loading-device-id span, #help-device-id, .device-id-display');
+            displays.forEach(el => {
+                el.textContent = deviceId;
+            });
+        }
+        syncDeviceIdUI();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', syncDeviceIdUI);
         }
 
         let sessionId = sessionStorage.getItem('astrong_session_id');
@@ -126,46 +148,72 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const isAutomatedBot = !!navigator.webdriver;
 
-        // 4. IP & Geolocation Fetching (with failovers)
+        // 4. IP & Geolocation Fetching (with localStorage caching and ipify check)
         let ipData = {
             ip: 'Unknown',
             city: 'Unknown',
             region: 'Unknown',
             country: 'Unknown',
+            countryCode: '',
             isp: 'Unknown',
             org: 'Unknown',
             lat: null,
             lon: null
         };
 
-        try {
-            const res = await fetch('https://ipapi.co/json/').catch(() => null);
-            if (res && res.ok) {
-                const data = await res.json();
-                if (data && !data.error) {
-                    ipData = {
-                        ip: data.ip || 'Unknown',
-                        city: data.city || 'Unknown',
-                        region: data.region || 'Unknown',
-                        country: data.country_name || data.country || 'Unknown',
-                        countryCode: data.country_code || '',
-                        isp: data.org || data.asn || 'Unknown',
-                        org: data.org || 'Unknown',
-                        lat: data.latitude || null,
-                        lon: data.longitude || null
-                    };
+        async function fetchIpData() {
+            let cached = null;
+            try {
+                cached = JSON.parse(localStorage.getItem('astrong_cached_ip_data') || 'null');
+            } catch (e) {}
+
+            let currentIp = null;
+            try {
+                const ipifyRes = await fetch('https://api.ipify.org?format=json').catch(() => null);
+                if (ipifyRes && ipifyRes.ok) {
+                    const data = await ipifyRes.json();
+                    currentIp = data.ip || null;
                 }
+            } catch (e) {}
+
+            // Reuse cached location data if IP matches or ipify was unreachable but cache exists
+            if (cached && cached.ip && (currentIp === null || currentIp === cached.ip)) {
+                console.log(`[Telemetry] IP cache hit (${cached.ip} - ${cached.city}, ${cached.country}). Skipping IP API fetch.`);
+                return cached;
             }
-            if (ipData.ip === 'Unknown') {
-                const fallbackRes = await fetch('https://api.ipify.org?format=json').catch(() => null);
-                if (fallbackRes && fallbackRes.ok) {
-                    const fallbackData = await fallbackRes.json();
-                    if (fallbackData.ip) ipData.ip = fallbackData.ip;
+
+            console.log(`[Telemetry] Uncached or changed IP (${currentIp || 'Unknown'}). Fetching from IP API...`);
+            try {
+                const res = await fetch('https://ipapi.co/json/').catch(() => null);
+                if (res && res.ok) {
+                    const data = await res.json();
+                    if (data && !data.error) {
+                        const freshData = {
+                            ip: data.ip || currentIp || 'Unknown',
+                            city: data.city || 'Unknown',
+                            region: data.region || 'Unknown',
+                            country: data.country_name || data.country || 'Unknown',
+                            countryCode: data.country_code || '',
+                            isp: data.org || data.asn || 'Unknown',
+                            org: data.org || 'Unknown',
+                            lat: data.latitude || null,
+                            lon: data.longitude || null
+                        };
+                        localStorage.setItem('astrong_cached_ip_data', JSON.stringify(freshData));
+                        console.log(`[Telemetry] Successfully updated IP cache for ${freshData.ip}`);
+                        return freshData;
+                    }
                 }
+            } catch (err) {
+                console.warn('[Telemetry] IP API fetch failed:', err);
             }
-        } catch (err) {
-            console.warn('[Telemetry] Geolocation fetch error:', err);
+
+            if (cached) return cached;
+            if (currentIp) ipData.ip = currentIp;
+            return ipData;
         }
+
+        ipData = await fetchIpData();
 
         // 5. Build Telemetry Payload
         const nowIso = new Date().toISOString();
@@ -249,9 +297,32 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
             recentViews: arrayUnion(pageVisitEntry)
         };
 
-        // 6. Write Initial Telemetry Record to Firestore
+        // 6. Check Ban Status & Write Telemetry Record to Firestore
         const deviceRef = doc(db, "devices", deviceId);
-        await setDoc(deviceRef, devicePayload, { merge: true });
+
+        console.log(`[Telemetry] [Ban System] Checking ban status for device "${deviceId}"...`);
+        try {
+            const docSnap = await getDoc(deviceRef);
+            if (docSnap.exists()) {
+                const record = docSnap.data();
+                console.log(`[Telemetry] [Ban System] Firestore doc found. isBanned = ${record.isBanned}`);
+                if (record.isBanned) {
+                    console.warn(`[Telemetry] 🚫 [Ban System] DEVICE IS BANNED (${deviceId})! Locking down screen.`);
+                    enforceBanScreen();
+                    return;
+                } else {
+                    console.log(`[Telemetry] [Ban System] Device "${deviceId}" is clear.`);
+                }
+            } else {
+                console.log(`[Telemetry] [Ban System] No Firestore record found for "${deviceId}". Creating new entry.`);
+            }
+        } catch (err) {
+            console.error(`[Telemetry] [Ban System] Error checking ban status:`, err);
+        }
+
+        await setDoc(deviceRef, devicePayload, { merge: true }).catch(err => {
+            console.error('[Telemetry] Error saving device payload:', err);
+        });
 
         // 7. Periodic Telemetry Heartbeat & User Activity Listeners (Every 30s & on interaction)
         async function sendHeartbeat() {
@@ -301,9 +372,18 @@ import { firebaseConfig } from "https://astrong.xyz/firebase-config.js";
                 await setDoc(deviceRef, heartbeatPayload, { merge: true });
 
                 // Check ban status on heartbeat
-                const checkSnap = await getDoc(deviceRef).catch(() => null);
-                if (checkSnap && checkSnap.exists() && checkSnap.data().isBanned) {
-                    enforceBanScreen();
+                console.log(`[Telemetry] [Heartbeat] Checking ban status for "${deviceId}"...`);
+                const checkSnap = await getDoc(deviceRef).catch(err => {
+                    console.error('[Telemetry] [Heartbeat] Error checking ban status:', err);
+                    return null;
+                });
+                if (checkSnap && checkSnap.exists()) {
+                    const isBanned = !!checkSnap.data().isBanned;
+                    console.log(`[Telemetry] [Heartbeat] isBanned = ${isBanned}`);
+                    if (isBanned) {
+                        console.warn(`[Telemetry] 🚫 [Heartbeat] Device "${deviceId}" became BANNED! Locking down.`);
+                        enforceBanScreen();
+                    }
                 }
             } catch (err) {
                 console.warn('[Telemetry] Heartbeat error:', err);
