@@ -211,6 +211,10 @@ h1 {
     background-color: #00a862;
 }
 
+.live-status-bar[data-status="unavailable"] .live-dot {
+    background-color: #ef4444;
+}
+
 .live-status-bar[data-status="busy"] .live-dot {
     background-color: #f59e0b;
 }

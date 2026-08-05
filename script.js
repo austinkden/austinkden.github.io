@@ -789,10 +789,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const summary = (event.summary || '').trim().toLowerCase();
                 const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
+                const isCalendarBlock = summary.includes('calendar block');
                 const isBusy = event.transparency !== 'transparent';
 
                 if (isStarbucks) {
                     events.push({ type: 'at-work', start, end });
+                } else if (isCalendarBlock && isBusy) {
+                    events.push({ type: 'unavailable', start, end });
                 } else if (isBusy) {
                     events.push({ type: 'busy', start, end });
                 }
@@ -826,8 +829,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const notes = (item.notes || '').toLowerCase();
                     const title = (item.title || '').toLowerCase();
+                    const isCalendarBlock = title.includes('calendar block') || notes.includes('calendar block');
                     const isBusyFlag = item.type === 'busy' || item.busy === true || item.isStarbucks === false || item.status === 'busy' || notes.includes('busy') || title.includes('busy');
-                    const type = isBusyFlag ? 'busy' : 'at-work';
+                    const isUnavailableFlag = item.type === 'unavailable' || item.status === 'unavailable' || (isCalendarBlock && isBusyFlag);
+
+                    let type = 'at-work';
+                    if (isUnavailableFlag) {
+                        type = 'unavailable';
+                    } else if (isBusyFlag) {
+                        type = 'busy';
+                    }
 
                     events.push({ type, start, end });
                 }
@@ -835,24 +846,32 @@ document.addEventListener('DOMContentLoaded', () => {
             return events;
         }
 
-        function formatDurationText(totalMinutes) {
-            const mins = Math.max(1, totalMinutes);
-            const hours = Math.floor(mins / 60);
-            const remainingMins = mins % 60;
+        function formatDurationText(totalSeconds) {
+            const secs = Math.max(1, Math.floor(totalSeconds));
+            const d = Math.floor(secs / 86400);
+            const h = Math.floor((secs % 86400) / 3600);
+            const m = Math.floor((secs % 3600) / 60);
+            const s = secs % 60;
+
+            const showSeconds = secs < 300; // Less than 5 minutes
 
             const parts = [];
-            if (hours > 0) {
-                parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
-            }
-            if (remainingMins > 0 || hours === 0) {
-                parts.push(`${remainingMins} ${remainingMins === 1 ? 'minute' : 'minutes'}`);
+            if (d > 0) parts.push(`${d}d`);
+            if (h > 0) parts.push(`${h}h`);
+            if (m > 0) parts.push(`${m}m`);
+            if (showSeconds && s > 0) parts.push(`${s}s`);
+
+            if (parts.length === 0) {
+                if (showSeconds) parts.push(`${s}s`);
+                else parts.push('1m');
             }
 
-            return parts.join(' and ');
+            return parts.join(' ');
         }
 
         function evaluateStatusFromEvents(events, now) {
             let activeAtWork = null;
+            let activeUnavailable = null;
             let activeBusy = null;
             let upcomingEvent = null;
 
@@ -861,6 +880,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (evt.type === 'at-work') {
                         if (!activeAtWork || evt.end > activeAtWork.end) {
                             activeAtWork = evt;
+                        }
+                    } else if (evt.type === 'unavailable') {
+                        if (!activeUnavailable || evt.end > activeUnavailable.end) {
+                            activeUnavailable = evt;
                         }
                     } else if (evt.type === 'busy') {
                         if (!activeBusy || evt.end > activeBusy.end) {
@@ -874,13 +897,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            const activeEvent = activeAtWork || activeBusy;
+            const activeEvent = activeAtWork || activeUnavailable || activeBusy;
 
             if (activeEvent) {
-                const minsRemaining = Math.ceil((activeEvent.end.getTime() - now.getTime()) / 60000);
+                const totalSeconds = Math.max(1, (activeEvent.end.getTime() - now.getTime()) / 1000);
                 const statusType = activeEvent.type;
-                const prefix = statusType === 'at-work' ? 'At work' : 'Busy';
-                const durationStr = formatDurationText(minsRemaining);
+                let prefix = 'Busy';
+                if (statusType === 'at-work') prefix = 'At work';
+                else if (statusType === 'unavailable') prefix = 'Unavailable';
+                const durationStr = formatDurationText(totalSeconds);
 
                 return {
                     status: statusType,
@@ -891,12 +916,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const baseLabel = window.isSpotifyPlaying ? 'Listening to music' : 'Available';
 
                 if (upcomingEvent) {
-                    const minsUntilStart = Math.ceil((upcomingEvent.start.getTime() - now.getTime()) / 60000);
-                    if (minsUntilStart <= 60 && minsUntilStart >= 1) {
-                        const unit = minsUntilStart === 1 ? 'minute' : 'minutes';
+                    const totalSecondsUntilStart = Math.max(1, (upcomingEvent.start.getTime() - now.getTime()) / 1000);
+                    if (totalSecondsUntilStart <= 3600) {
+                        const durationStr = formatDurationText(totalSecondsUntilStart);
                         return {
                             status: baseStatus,
-                            label: `Available for ${minsUntilStart} more ${unit}`
+                            label: `Available for another ${durationStr}`
                         };
                     }
                 }
@@ -908,8 +933,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        async function fetchCalendarStatus() {
-            const now = new Date();
+        let cachedEvents = null;
+        let lastFetchTime = 0;
+
+        async function fetchCalendarEvents(now) {
+            if (cachedEvents && (Date.now() - lastFetchTime < 30000)) {
+                return cachedEvents;
+            }
+
             let events = [];
             let apiSuccess = false;
 
@@ -927,7 +958,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     events = parseCalendarEvents(data.items);
                     apiSuccess = true;
                 } catch (err) {
-                    // Try live serverless proxy endpoint /api/calendar
                     try {
                         const proxyUrl = `/api/calendar?calendarId=${encodeURIComponent(calendarId)}`;
                         const proxyRes = await fetch(proxyUrl);
@@ -939,7 +969,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     } catch (proxyErr) {
-                        // Proxy fetch failed, fallback to local schedule
                     }
 
                     if (!apiSuccess && !apiWarned) {
@@ -953,22 +982,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 events = parseFallbackEvents(now);
             }
 
+            cachedEvents = events;
+            lastFetchTime = Date.now();
+            return cachedEvents;
+        }
+
+        async function fetchCalendarStatus(force = false) {
+            if (force) lastFetchTime = 0;
+            const now = new Date();
+            const events = await fetchCalendarEvents(now);
             const result = evaluateStatusFromEvents(events, now);
             updateUI(result.status, result.label);
         }
 
-        window.updateLiveStatus = fetchCalendarStatus;
+        window.updateLiveStatus = () => fetchCalendarStatus(true);
 
         function scheduleNextAlignedUpdate() {
             fetchCalendarStatus();
             const now = new Date();
-            const delay = 10000 - ((now.getSeconds() % 10) * 1000 + now.getMilliseconds());
+            const delay = 1000 - now.getMilliseconds();
             setTimeout(scheduleNextAlignedUpdate, delay);
         }
 
         fetchCalendarStatus();
         const initialNow = new Date();
-        const initialDelay = 10000 - ((initialNow.getSeconds() % 10) * 1000 + initialNow.getMilliseconds());
+        const initialDelay = 1000 - initialNow.getMilliseconds();
         setTimeout(scheduleNextAlignedUpdate, initialDelay);
     }
 
