@@ -727,36 +727,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const apiKey = 'AIzaSyBIwrZ7LnEPCEGs5CM_Pq61YtGZ3jHVQHY';
         const calendarId = 'dolphin.kden@gmail.com';
 
-        // Fallback schedule data in case API key access is blocked or offline
-        const FALLBACK_STARBUCKS_SCHEDULE = {
-            "2026-06-30": { start: "11:15", end: "15:15" },
-            "2026-07-02": { start: "12:15", end: "16:15" },
-            "2026-07-03": { start: "13:30", end: "17:45" },
-            "2026-07-08": { start: "11:00", end: "15:00" },
-            "2026-07-09": { start: "10:00", end: "14:00" },
-            "2026-07-10": { start: "14:00", end: "20:30" },
-            "2026-07-12": { start: "09:00", end: "15:15" },
-            "2026-07-14": { start: "08:30", end: "12:30" },
-            "2026-07-15": { start: "13:00", end: "17:30" },
-            "2026-07-16": { start: "15:15", end: "19:15" },
-            "2026-07-18": { start: "07:45", end: "12:30" },
-            "2026-07-19": { start: "12:00", end: "16:00" },
-            "2026-07-21": { start: "10:00", end: "17:00" },
-            "2026-07-22": { start: "12:00", end: "16:00" },
-            "2026-07-23": { start: "10:45", end: "16:00" },
-            "2026-07-24": { start: "10:45", end: "14:45" },
-            "2026-07-26": { start: "08:00", end: "12:45" },
-            "2026-07-28": { start: "12:00", end: "20:30" },
-            "2026-07-29": { start: "07:15", end: "12:00" },
-            "2026-07-30": { start: "07:00", end: "13:30" },
-            "2026-07-31": { start: "12:45", end: "19:15" },
-            "2026-08-02": { start: "11:00", end: "18:30" },
-            "2026-08-03": { start: "14:15", end: "19:00" },
-            "2026-08-05": { start: "11:15", end: "15:45" },
-            "2026-08-06": { start: "07:00", end: "13:00" },
-            "2026-08-08": { start: "09:30", end: "17:00" },
-            "2026-08-09": { start: "08:00", end: "12:30" }
-        };
+        // Fallback schedule data object
+        const FALLBACK_STARBUCKS_SCHEDULE = {};
 
         let apiDisabled = false;
         let apiWarned = false;
