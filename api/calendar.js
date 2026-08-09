@@ -30,6 +30,7 @@ function parseIcs(icsText) {
         const lines = block.split(/\r?\n/);
 
         let summary = '';
+        let description = '';
         let dtstart = '';
         let dtend = '';
         let status = 'confirmed';
@@ -44,12 +45,14 @@ function parseIcs(icsText) {
 
             if (line.startsWith('SUMMARY:')) {
                 summary = line.substring('SUMMARY:'.length).trim();
+            } else if (line.startsWith('DESCRIPTION:')) {
+                description = line.substring('DESCRIPTION:'.length).trim().replace(/\\n/g, '\n').replace(/\\,/g, ',');
             } else if (line.startsWith('DTSTART')) {
-                const val = line.split(':')[1];
-                if (val) dtstart = parseIcsDate(val);
+                const colonIdx = line.indexOf(':');
+                if (colonIdx !== -1) dtstart = parseIcsDate(line.substring(colonIdx + 1));
             } else if (line.startsWith('DTEND')) {
-                const val = line.split(':')[1];
-                if (val) dtend = parseIcsDate(val);
+                const colonIdx = line.indexOf(':');
+                if (colonIdx !== -1) dtend = parseIcsDate(line.substring(colonIdx + 1));
             } else if (line.startsWith('STATUS:')) {
                 status = line.substring('STATUS:'.length).trim().toLowerCase();
             } else if (line.startsWith('TRANSP:')) {
@@ -60,6 +63,7 @@ function parseIcs(icsText) {
         if (dtstart && dtend) {
             events.push({
                 summary,
+                description,
                 status,
                 transparency: transp === 'TRANSPARENT' ? 'transparent' : 'opaque',
                 start: dtstart.length === 10 ? { date: dtstart } : { dateTime: dtstart },
