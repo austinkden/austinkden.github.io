@@ -666,12 +666,14 @@
 
         let isWindowLoaded = false;
         let isSpotifyDecided = !document.getElementById('spotify-widget');
+        let isScheduleDecided = !window.__ASTRONG_WAIT_FOR_SCHEDULE__ || window.__ASTRONG_SCHEDULE_READY__ === true;
         let hideTimeoutId = null;
 
         function tryHideLoader() {
             if (window.__ASTRONG_BANNED__) return;
             const isBanVerified = window.__ASTRONG_BAN_VERIFIED__ === true;
-            if (isWindowLoaded && isSpotifyDecided && isBanVerified) {
+            const isScheduleReady = isScheduleDecided || !window.__ASTRONG_WAIT_FOR_SCHEDULE__ || window.__ASTRONG_SCHEDULE_READY__ === true;
+            if (isWindowLoaded && isSpotifyDecided && isBanVerified && isScheduleReady) {
                 const elapsed = performance.now() - startTime;
                 const remaining = Math.max(0, minDuration - elapsed);
                 if (hideTimeoutId) clearTimeout(hideTimeoutId);
@@ -706,7 +708,9 @@
                 startTime = performance.now();
                 isWindowLoaded = true;
                 isSpotifyDecided = true;
+                isScheduleDecided = true;
                 window.__ASTRONG_BAN_VERIFIED__ = true;
+                window.__ASTRONG_SCHEDULE_READY__ = true;
                 tryHideLoader();
             }
         });
@@ -717,6 +721,12 @@
         });
 
         window.addEventListener('astrong-ban-verified', () => {
+            tryHideLoader();
+        });
+
+        window.addEventListener('astrong-schedule-ready', () => {
+            isScheduleDecided = true;
+            window.__ASTRONG_SCHEDULE_READY__ = true;
             tryHideLoader();
         });
 
@@ -732,14 +742,17 @@
         }
         
         // Safety fallback in case network resources take long
+        const fallbackDelay = window.__ASTRONG_WAIT_FOR_SCHEDULE__ ? 2000 : 350;
         setTimeout(() => {
             if (loader && !loader.classList.contains('fade-out')) {
                 isWindowLoaded = true;
                 isSpotifyDecided = true;
+                isScheduleDecided = true;
                 window.__ASTRONG_BAN_VERIFIED__ = true;
+                window.__ASTRONG_SCHEDULE_READY__ = true;
                 tryHideLoader();
             }
-        }, 350);
+        }, fallbackDelay);
     })();
     
     // Cookie helpers
