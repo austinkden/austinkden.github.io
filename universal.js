@@ -29,7 +29,31 @@
                 return res;
             }
 
-            let deviceId = localStorage.getItem('astrong_device_id');
+            function getRootCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            }
+
+            function setRootCookie(name, value, days) {
+                const d = new Date();
+                d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+                const expires = `expires=${d.toUTCString()}`;
+                const domainStr = window.location.hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
+                document.cookie = `${name}=${value}; ${expires}; path=/${domainStr}; SameSite=Lax`;
+            }
+
+            // Clear local storage on subdomains so state is managed exclusively via root-domain cookies (.astrong.xyz)
+            if (window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz')) {
+                try { localStorage.clear(); } catch (e) {}
+            }
+
+            let deviceId = getRootCookie('astrong_device_id');
+            if (!deviceId && window.location.hostname === 'astrong.xyz') {
+                deviceId = localStorage.getItem('astrong_device_id');
+            }
+
             if (!deviceId || !/^[A-Z0-9]{8}$/.test(deviceId)) {
                 let candidate = generate8CharDeviceId();
                 let attempts = 0;
@@ -48,7 +72,10 @@
                     }
                 }
                 deviceId = candidate;
-                localStorage.setItem('astrong_device_id', deviceId);
+            }
+            setRootCookie('astrong_device_id', deviceId, 3650);
+            if (window.location.hostname === 'astrong.xyz') {
+                try { localStorage.setItem('astrong_device_id', deviceId); } catch (e) {}
             }
             window.__ASTRONG_DEVICE_ID__ = deviceId;
             console.log(`[Telemetry] Active Device ID: ${deviceId}`);
