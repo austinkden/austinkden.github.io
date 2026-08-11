@@ -1,6 +1,32 @@
 // universal.js - Loads and applies the persistent accent theme across all pages
 (function () {
-    // 0. Device & Session Telemetry Collector
+    // 0. Subdomain Storage Policy Enforcement & Root Cookie Helpers
+    const isSubdomain = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
+    if (isSubdomain) {
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+            localStorage.setItem = function () { };
+            sessionStorage.setItem = function () { };
+        } catch (e) { }
+    }
+
+    function getRootCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    function setRootCookie(name, value, days) {
+        const d = new Date();
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        const expires = `expires=${d.toUTCString()}`;
+        const domainStr = window.location.hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
+        document.cookie = `${name}=${value}; ${expires}; path=/${domainStr}; SameSite=Lax`;
+    }
+
+    // Device & Session Telemetry Collector
     (async function initTelemetry() {
         try {
             const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
@@ -29,29 +55,9 @@
                 return res;
             }
 
-            function getRootCookie(name) {
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
-                return null;
-            }
-
-            function setRootCookie(name, value, days) {
-                const d = new Date();
-                d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-                const expires = `expires=${d.toUTCString()}`;
-                const domainStr = window.location.hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
-                document.cookie = `${name}=${value}; ${expires}; path=/${domainStr}; SameSite=Lax`;
-            }
-
-            // Clear local storage on subdomains so state is managed exclusively via root-domain cookies (.astrong.xyz)
-            if (window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz')) {
-                try { localStorage.clear(); } catch (e) { }
-            }
-
             let deviceId = getRootCookie('astrong_device_id');
-            if (!deviceId && window.location.hostname === 'astrong.xyz') {
-                deviceId = localStorage.getItem('astrong_device_id');
+            if (!deviceId && !isSubdomain) {
+                try { deviceId = localStorage.getItem('astrong_device_id'); } catch (e) { }
             }
 
             if (!deviceId || !/^[A-Z0-9]{8}$/.test(deviceId)) {
@@ -74,7 +80,7 @@
                 deviceId = candidate;
             }
             setRootCookie('astrong_device_id', deviceId, 3650);
-            if (window.location.hostname === 'astrong.xyz') {
+            if (!isSubdomain) {
                 try { localStorage.setItem('astrong_device_id', deviceId); } catch (e) { }
             }
             window.__ASTRONG_DEVICE_ID__ = deviceId;
@@ -99,24 +105,39 @@
                 document.addEventListener('DOMContentLoaded', syncDeviceIdUI);
             }
 
-            let sessionId = sessionStorage.getItem('astrong_session_id');
+            let sessionId = getRootCookie('astrong_session_id');
+            if (!sessionId && !isSubdomain) {
+                try { sessionId = sessionStorage.getItem('astrong_session_id'); } catch (e) { }
+            }
             let isNewSession = false;
             if (!sessionId) {
                 sessionId = 'sess_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-                sessionStorage.setItem('astrong_session_id', sessionId);
+                setRootCookie('astrong_session_id', sessionId, 1);
+                if (!isSubdomain) {
+                    try { sessionStorage.setItem('astrong_session_id', sessionId); } catch (e) { }
+                }
                 isNewSession = true;
             }
 
-            let firstSeen = localStorage.getItem('astrong_first_seen');
+            let firstSeen = getRootCookie('astrong_first_seen');
+            if (!firstSeen && !isSubdomain) {
+                try { firstSeen = localStorage.getItem('astrong_first_seen'); } catch (e) { }
+            }
             if (!firstSeen) {
                 firstSeen = new Date().toISOString();
-                localStorage.setItem('astrong_first_seen', firstSeen);
+                setRootCookie('astrong_first_seen', firstSeen, 3650);
+                if (!isSubdomain) {
+                    try { localStorage.setItem('astrong_first_seen', firstSeen); } catch (e) { }
+                }
             }
 
-            let visitCount = parseInt(localStorage.getItem('astrong_visit_count') || '0', 10);
+            let visitCount = parseInt(getRootCookie('astrong_visit_count') || (!isSubdomain ? localStorage.getItem('astrong_visit_count') : '0') || '0', 10);
             if (isNewSession) {
                 visitCount += 1;
-                localStorage.setItem('astrong_visit_count', visitCount.toString());
+                setRootCookie('astrong_visit_count', visitCount.toString(), 3650);
+                if (!isSubdomain) {
+                    try { localStorage.setItem('astrong_visit_count', visitCount.toString()); } catch (e) { }
+                }
             }
 
             // 2. Parse User Agent for Browser & OS
@@ -225,8 +246,23 @@
             async function fetchIpData() {
                 let cached = null;
                 try {
-                    cached = JSON.parse(localStorage.getItem('astrong_cached_ip_data') || 'null');
+                    const rawCookie = getRootCookie('astrong_cached_ip_data');
+                    if (rawCookie) {
+                        cached = JSON.parse(decodeURIComponent(rawCookie));
+                    } else if (window.location.hostname === 'astrong.xyz') {
+                        cached = JSON.parse(localStorage.getItem('astrong_cached_ip_data') || 'null');
+                    }
                 } catch (e) { }
+
+                function cacheIpData(freshData) {
+                    try {
+                        const jsonStr = JSON.stringify(freshData);
+                        setRootCookie('astrong_cached_ip_data', encodeURIComponent(jsonStr), 7);
+                        if (window.location.hostname === 'astrong.xyz') {
+                            localStorage.setItem('astrong_cached_ip_data', jsonStr);
+                        }
+                    } catch (e) { }
+                }
 
                 let currentIp = null;
                 try {
@@ -262,7 +298,7 @@
                                 lat: data.latitude || null,
                                 lon: data.longitude || null
                             };
-                            localStorage.setItem('astrong_cached_ip_data', JSON.stringify(freshData));
+                            cacheIpData(freshData);
                             console.log(`[Telemetry] Successfully updated IP cache for ${freshData.ip}`);
                             return freshData;
                         }
@@ -286,7 +322,7 @@
                                 lat: data.latitude || null,
                                 lon: data.longitude || null
                             };
-                            localStorage.setItem('astrong_cached_ip_data', JSON.stringify(freshData));
+                            cacheIpData(freshData);
                             console.log(`[Telemetry] Successfully updated IP cache for ${freshData.ip} (via ipwho.is)`);
                             return freshData;
                         }
@@ -797,16 +833,17 @@
     }
 
     // 1. Theme Loader
-    const savedAccent = getThemeCookie('astrong_accent') || localStorage.getItem('astrong_accent') || 'purple';
-    const savedMode = getThemeCookie('astrong_mode') || localStorage.getItem('astrong_mode') || 'dark';
+    const isSubdomainHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
+    const savedAccent = getThemeCookie('astrong_accent') || (!isSubdomainHost ? localStorage.getItem('astrong_accent') : null) || 'purple';
+    const savedMode = getThemeCookie('astrong_mode') || (!isSubdomainHost ? localStorage.getItem('astrong_mode') : null) || 'dark';
     applyTheme(savedAccent, savedMode);
 
     function applyTheme(accent, mode) {
         if (!accent) {
-            accent = getThemeCookie('astrong_accent') || localStorage.getItem('astrong_accent') || 'purple';
+            accent = getThemeCookie('astrong_accent') || (!isSubdomainHost ? localStorage.getItem('astrong_accent') : null) || 'purple';
         }
         if (!mode) {
-            mode = getThemeCookie('astrong_mode') || localStorage.getItem('astrong_mode') || 'dark';
+            mode = getThemeCookie('astrong_mode') || (!isSubdomainHost ? localStorage.getItem('astrong_mode') : null) || 'dark';
         }
 
         if (mode === 'light') {
@@ -858,11 +895,13 @@
         }
 
         try {
-            if (localStorage.getItem('astrong_accent') !== accent) {
-                localStorage.setItem('astrong_accent', accent);
-            }
-            if (localStorage.getItem('astrong_mode') !== mode) {
-                localStorage.setItem('astrong_mode', mode);
+            if (!isSubdomainHost) {
+                if (localStorage.getItem('astrong_accent') !== accent) {
+                    localStorage.setItem('astrong_accent', accent);
+                }
+                if (localStorage.getItem('astrong_mode') !== mode) {
+                    localStorage.setItem('astrong_mode', mode);
+                }
             }
             if (getThemeCookie('astrong_accent') !== accent) {
                 setThemeCookie('astrong_accent', accent);
@@ -968,12 +1007,16 @@
     }, true);
 
     function cycleThemeAccent() {
-        const currentAccent = localStorage.getItem('astrong_accent') || 'purple';
+        const isSubHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
+        const currentAccent = getThemeCookie('astrong_accent') || (!isSubHost ? localStorage.getItem('astrong_accent') : null) || 'purple';
         const order = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white'];
         const nextIdx = (order.indexOf(currentAccent) + 1) % order.length;
         const nextAccent = order[nextIdx];
 
-        localStorage.setItem('astrong_accent', nextAccent);
+        if (!isSubHost) {
+            try { localStorage.setItem('astrong_accent', nextAccent); } catch (e) { }
+        }
+        setThemeCookie('astrong_accent', nextAccent);
         applyTheme(nextAccent);
 
         // Update dot selection UI on homepage if we are on it
@@ -2163,7 +2206,8 @@
             { id: 'about', title: 'About Austin', category: 'Navigation', icon: icons.about, url: 'https://astrong.xyz/about/' },
             {
                 id: 'theme-toggle', title: 'Toggle Light / Dark Mode', category: 'Actions', icon: icons.theme, action: () => {
-                    const currentMode = localStorage.getItem('astrong_mode') || 'dark';
+                    const isSubHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
+                    const currentMode = getThemeCookie('astrong_mode') || (!isSubHost ? localStorage.getItem('astrong_mode') : null) || 'dark';
                     const newMode = currentMode === 'light' ? 'dark' : 'light';
                     applyTheme(null, newMode);
                     if (window.showToast) window.showToast(`Switched to ${newMode} mode`);
