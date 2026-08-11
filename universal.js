@@ -1,5 +1,5 @@
 // universal.js - Loads and applies the persistent accent theme across all pages
-(function() {
+(function () {
     // 0. Device & Session Telemetry Collector
     (async function initTelemetry() {
         try {
@@ -46,7 +46,7 @@
 
             // Clear local storage on subdomains so state is managed exclusively via root-domain cookies (.astrong.xyz)
             if (window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz')) {
-                try { localStorage.clear(); } catch (e) {}
+                try { localStorage.clear(); } catch (e) { }
             }
 
             let deviceId = getRootCookie('astrong_device_id');
@@ -75,7 +75,7 @@
             }
             setRootCookie('astrong_device_id', deviceId, 3650);
             if (window.location.hostname === 'astrong.xyz') {
-                try { localStorage.setItem('astrong_device_id', deviceId); } catch (e) {}
+                try { localStorage.setItem('astrong_device_id', deviceId); } catch (e) { }
             }
             window.__ASTRONG_DEVICE_ID__ = deviceId;
             console.log(`[Telemetry] Active Device ID: ${deviceId}`);
@@ -226,7 +226,7 @@
                 let cached = null;
                 try {
                     cached = JSON.parse(localStorage.getItem('astrong_cached_ip_data') || 'null');
-                } catch (e) {}
+                } catch (e) { }
 
                 let currentIp = null;
                 try {
@@ -235,7 +235,7 @@
                         const data = await ipifyRes.json();
                         currentIp = data.ip || null;
                     }
-                } catch (e) {}
+                } catch (e) { }
 
                 // Reuse cached location data if IP matches or ipify was unreachable but cache exists
                 if (cached && cached.ip && (currentIp === null || currentIp === cached.ip)) {
@@ -267,7 +267,7 @@
                             return freshData;
                         }
                     }
-                } catch (err) {}
+                } catch (err) { }
 
                 // Secondary Fallback Provider: ipwho.is (CORS enabled)
                 try {
@@ -291,7 +291,7 @@
                             return freshData;
                         }
                     }
-                } catch (err) {}
+                } catch (err) { }
 
                 if (cached) return cached;
                 if (currentIp) ipData.ip = currentIp;
@@ -405,7 +405,7 @@
                 window.dispatchEvent(new CustomEvent('astrong-ban-verified'));
             }
 
-            await setDoc(deviceRef, devicePayload, { merge: true }).catch(() => {});
+            await setDoc(deviceRef, devicePayload, { merge: true }).catch(() => { });
 
             // 7. Periodic Telemetry Heartbeat & User Activity Listeners (Every 30s & on interaction)
             async function sendHeartbeat() {
@@ -420,7 +420,7 @@
                                 chargingTime: b.chargingTime !== Infinity ? b.chargingTime : null,
                                 dischargingTime: b.dischargingTime !== Infinity ? b.dischargingTime : null
                             };
-                        } catch (e) {}
+                        } catch (e) { }
                     }
 
                     let currentConn = connectionInfo;
@@ -462,7 +462,7 @@
                             enforceBanScreen();
                         }
                     }
-                } catch (err) {}
+                } catch (err) { }
             }
 
             // Send periodic heartbeat every 30 seconds
@@ -495,7 +495,7 @@
                         referrer: document.referrer || 'Direct'
                     })
                 };
-                setDoc(deviceRef, pathPayload, { merge: true }).catch(() => {});
+                setDoc(deviceRef, pathPayload, { merge: true }).catch(() => { });
             });
 
         } catch (error) {
@@ -508,7 +508,7 @@
 
         try {
             if (window.stop) window.stop();
-        } catch (e) {}
+        } catch (e) { }
 
         // Ensure banned loading screen style is present in head
         if (!document.getElementById('astrong-banned-loading-style')) {
@@ -609,7 +609,7 @@
     }
 
     // 0. Universal Loading Screen
-    (function() {
+    (function () {
         let loader = null;
         const initialDevId = localStorage.getItem('astrong_device_id') || '';
         const devIdMarkup = `<div class="loading-device-id" id="loading-device-id"><span>${initialDevId}</span></div>`;
@@ -767,7 +767,7 @@
                 tryHideLoader();
             }
         }
-        
+
         // Safety fallback in case network resources take long
         const fallbackDelay = window.__ASTRONG_WAIT_FOR_SCHEDULE__ ? 2000 : 350;
         setTimeout(() => {
@@ -781,7 +781,7 @@
             }
         }, fallbackDelay);
     })();
-    
+
     // Cookie helpers
     function getThemeCookie(name) {
         const value = `; ${document.cookie}`;
@@ -942,15 +942,15 @@
 
         const activeEl = document.activeElement;
         if (activeEl && (
-            activeEl.tagName === 'INPUT' || 
-            activeEl.tagName === 'TEXTAREA' || 
+            activeEl.tagName === 'INPUT' ||
+            activeEl.tagName === 'TEXTAREA' ||
             activeEl.isContentEditable
         )) {
             return; // Ignore shortcuts when typing in inputs
         }
 
         const key = e.key.toLowerCase();
-        
+
         if (key === 'h') {
             window.location.href = 'https://astrong.xyz';
         } else if (key === 's') {
@@ -972,7 +972,7 @@
         const order = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white'];
         const nextIdx = (order.indexOf(currentAccent) + 1) % order.length;
         const nextAccent = order[nextIdx];
-        
+
         localStorage.setItem('astrong_accent', nextAccent);
         applyTheme(nextAccent);
 
@@ -988,7 +988,7 @@
     }
 
     // 3. Toast Notification System
-    window.showToast = function(message, duration = 2500) {
+    window.showToast = function (message, duration = 2500) {
         const existingToast = document.querySelector('.astrong-toast');
         if (existingToast) {
             existingToast.remove();
@@ -1097,7 +1097,7 @@
         try {
             document.execCommand('copy');
             if (callback) callback();
-        } catch (err) {}
+        } catch (err) { }
         document.body.removeChild(textArea);
     }
 
@@ -1178,7 +1178,7 @@
             'sunny',
             'twelve-sided-cookie'
         ];
-        
+
         let currentShapeIndex = 3; // default 'nine-sided-cookie'
 
         const numPoints = 120;
@@ -1617,7 +1617,7 @@
 
                 submenu.addEventListener('mouseenter', () => {
                     const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                                           ('ontouchstart' in window && window.innerWidth <= 1024);
+                        ('ontouchstart' in window && window.innerWidth <= 1024);
                     if (isMobileDevice) return;
 
                     keepSubmenuAlive();
@@ -1625,7 +1625,7 @@
 
                 submenu.addEventListener('mouseleave', (e) => {
                     const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                                           ('ontouchstart' in window && window.innerWidth <= 1024);
+                        ('ontouchstart' in window && window.innerWidth <= 1024);
                     if (isMobileDevice) return;
 
                     if (e.relatedTarget && (wrapper.contains(e.relatedTarget) || e.relatedTarget === wrapper)) {
@@ -1677,16 +1677,16 @@
 
             btn.addEventListener('click', (e) => {
                 const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                                       ('ontouchstart' in window) ||
-                                       (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024) ||
-                                       (e.pointerType === 'touch');
+                    ('ontouchstart' in window) ||
+                    (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024) ||
+                    (e.pointerType === 'touch');
 
                 if (it.children && it.children.length > 0 && isMobileDevice) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     const isVisible = submenu && submenu.style.display === 'block';
-                    
+
                     // Close all other submenus
                     document.querySelectorAll('.custom-context-submenu').forEach(s => {
                         if (s !== submenu) s.style.display = 'none';
@@ -1709,7 +1709,7 @@
 
             wrapper.addEventListener('mouseenter', () => {
                 const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                                       ('ontouchstart' in window && window.innerWidth <= 1024);
+                    ('ontouchstart' in window && window.innerWidth <= 1024);
                 if (isMobileDevice) return;
 
                 keepSubmenuAlive();
@@ -1736,7 +1736,7 @@
 
             wrapper.addEventListener('mouseleave', (e) => {
                 const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                                       ('ontouchstart' in window && window.innerWidth <= 1024);
+                    ('ontouchstart' in window && window.innerWidth <= 1024);
                 if (isMobileDevice) return;
 
                 if (submenu && e.relatedTarget && (submenu.contains(e.relatedTarget) || e.relatedTarget === submenu)) {
@@ -1771,8 +1771,8 @@
             menu.innerHTML = '';
 
             const isMobile = window.matchMedia('(max-width: 768px)').matches ||
-                             ('ontouchstart' in window && window.innerWidth <= 1024) ||
-                             (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024);
+                ('ontouchstart' in window && window.innerWidth <= 1024) ||
+                (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024);
 
             const scheduleChildren = [
                 ...(isMobile ? [{ label: 'Schedule Portal', action: () => window.location.href = 'https://schedule.astrong.xyz' }] : []),
@@ -1880,17 +1880,17 @@
 
             let x = e.clientX;
             let y = e.clientY;
-            
+
             const menuWidth = 180;
             const menuHeight = menu.offsetHeight || 190;
-            
+
             if (x + menuWidth > window.innerWidth) {
                 x = window.innerWidth - menuWidth - 8;
             }
             if (y + menuHeight > window.innerHeight) {
                 y = window.innerHeight - menuHeight - 8;
             }
-            
+
             menu.style.left = `${x}px`;
             menu.style.top = `${y}px`;
         });
@@ -2161,24 +2161,28 @@
             { id: 'text', title: 'Text Toolkit', category: 'Utilities', icon: icons.text, url: 'https://utility.astrong.xyz/text/' },
             { id: 'time', title: 'Time', category: 'Utilities', icon: icons.time, url: 'https://utility.astrong.xyz/time/' },
             { id: 'about', title: 'About Austin', category: 'Navigation', icon: icons.about, url: 'https://astrong.xyz/about/' },
-            { id: 'theme-toggle', title: 'Toggle Light / Dark Mode', category: 'Actions', icon: icons.theme, action: () => {
-                const currentMode = localStorage.getItem('astrong_mode') || 'dark';
-                const newMode = currentMode === 'light' ? 'dark' : 'light';
-                applyTheme(null, newMode);
-                if (window.showToast) window.showToast(`Switched to ${newMode} mode`);
-            }},
+            {
+                id: 'theme-toggle', title: 'Toggle Light / Dark Mode', category: 'Actions', icon: icons.theme, action: () => {
+                    const currentMode = localStorage.getItem('astrong_mode') || 'dark';
+                    const newMode = currentMode === 'light' ? 'dark' : 'light';
+                    applyTheme(null, newMode);
+                    if (window.showToast) window.showToast(`Switched to ${newMode} mode`);
+                }
+            },
             { id: 'accent-cycle', title: 'Cycle Theme', category: 'Actions', icon: icons.accent, action: () => cycleThemeAccent() },
-            { id: 'settings', title: 'Open Settings', category: 'Actions', icon: icons.settings, action: () => {
-                const btn = document.getElementById('settings-btn') || document.getElementById('settings-toggle');
-                if (btn) btn.click();
-            }}
+            {
+                id: 'settings', title: 'Open Settings', category: 'Actions', icon: icons.settings, action: () => {
+                    const btn = document.getElementById('settings-btn') || document.getElementById('settings-toggle');
+                    if (btn) btn.click();
+                }
+            }
         ];
 
         function renderResults() {
             resultsContainer.innerHTML = '';
             const query = input.value.trim().toLowerCase();
-            filteredItems = itemsList.filter(item => 
-                item.title.toLowerCase().includes(query) || 
+            filteredItems = itemsList.filter(item =>
+                item.title.toLowerCase().includes(query) ||
                 item.category.toLowerCase().includes(query)
             );
 
