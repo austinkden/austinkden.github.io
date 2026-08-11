@@ -1749,8 +1749,8 @@
 
             const scheduleChildren = [
                 ...(isMobile ? [{ label: 'Schedule Portal', action: () => window.location.href = 'https://schedule.astrong.xyz' }] : []),
-                { label: 'School Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/school/' },
                 { label: 'Starbucks Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/starbucks' },
+                { label: 'School Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/school/' },
                 { label: 'Find a Time', action: () => window.open('https://calendar.app.google/j4EnNgkWWep23ZZC7', '_blank') }
             ];
 
@@ -2122,8 +2122,8 @@
         const itemsList = [
             { id: 'home', title: 'Home', category: 'Navigation', icon: icons.home, url: 'https://astrong.xyz' },
             { id: 'schedule', title: 'Schedule Portal', category: 'Navigation', icon: icons.schedule, url: 'https://schedule.astrong.xyz' },
-            { id: 'school', title: 'School Schedule', category: 'Schedule', icon: icons.school, url: 'https://schedule.astrong.xyz/school/' },
             { id: 'starbucks', title: 'Starbucks Schedule', category: 'Schedule', icon: icons.starbucks, url: 'https://schedule.astrong.xyz/starbucks/' },
+            { id: 'school', title: 'School Schedule', category: 'Schedule', icon: icons.school, url: 'https://schedule.astrong.xyz/school/' },
             { id: 'utility', title: 'Utility Portal', category: 'Navigation', icon: icons.utility, url: 'https://utility.astrong.xyz' },
             { id: 'contrast', title: 'Color Contrast', category: 'Utilities', icon: icons.contrast, url: 'https://utility.astrong.xyz/contrast/' },
             { id: 'metar', title: 'METAR Aviation Weather', category: 'Utilities', icon: icons.metar, url: 'https://utility.astrong.xyz/metar/' },
