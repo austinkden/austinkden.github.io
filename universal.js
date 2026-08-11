@@ -5,7 +5,7 @@
         try {
             const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
             const { getFirestore, doc, getDoc, setDoc, arrayUnion, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-            const { firebaseConfig } = await import("/firebase-config.js");
+            const { firebaseConfig } = await import("https://astrong.xyz/firebase-config.js");
 
             // Initialize Firebase App & Firestore
             const app = initializeApp(firebaseConfig);
