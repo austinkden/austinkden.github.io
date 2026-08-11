@@ -198,42 +198,43 @@ h1 {
     border-color: rgba(255, 255, 255, 0.18);
 }
 
-.live-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #888888;
-    animation: live-pulse 2s ease-in-out infinite;
+.live-dot, .live-icon {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #888888;
     flex-shrink: 0;
 }
 
-.live-status-bar[data-status="at-work"] .live-dot {
-    background-color: #00a862;
+.live-icon svg {
+    width: 14px;
+    height: 14px;
 }
 
-.live-status-bar[data-status="unavailable"] .live-dot {
-    background-color: #ef4444;
+.live-status-bar[data-status="at-work"] .live-icon {
+    color: #00a862;
 }
 
-.live-status-bar[data-status="busy"] .live-dot {
-    background-color: #f59e0b;
+.live-status-bar[data-status="at-school"] .live-icon {
+    color: #3b82f6;
 }
 
-.live-status-bar[data-status="listening"] .live-dot {
-    background-color: #1db954;
+.live-status-bar[data-status="unavailable"] .live-icon {
+    color: #ef4444;
 }
 
-.live-status-bar[data-status="available"] .live-dot {
-    background-color: #22c55e;
+.live-status-bar[data-status="busy"] .live-icon {
+    color: #f59e0b;
 }
 
-@keyframes live-pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.3;
-    }
+.live-status-bar[data-status="listening"] .live-icon {
+    color: #1db954;
+}
+
+.live-status-bar[data-status="available"] .live-icon {
+    color: #22c55e;
 }
 
 /* Grid Layout for Portals */

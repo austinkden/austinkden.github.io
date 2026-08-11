@@ -1749,6 +1749,7 @@
 
             const scheduleChildren = [
                 ...(isMobile ? [{ label: 'Schedule Portal', action: () => window.location.href = 'https://schedule.astrong.xyz' }] : []),
+                { label: 'School Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/school/' },
                 { label: 'Starbucks Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/starbucks' },
                 { label: 'Find a Time', action: () => window.open('https://calendar.app.google/j4EnNgkWWep23ZZC7', '_blank') }
             ];
@@ -1941,7 +1942,7 @@
                 overflow: hidden;
                 box-shadow: none;
                 animation: cmdPaletteFadeIn 0.15s ease-out;
-                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-family: 'Google Sans Flex', 'Google Sans', system-ui, -apple-system, sans-serif;
             }
             @keyframes cmdPaletteFadeIn {
                 from { opacity: 0; transform: translateY(-8px); }
@@ -2100,6 +2101,7 @@
         const icons = {
             home: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
             schedule: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>`,
+            school: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-graduation-cap"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
             starbucks: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/><path d="M6 2v2"/><path d="M17 12h1a3 3 0 0 1 0 6h-1"/></svg>`,
             utility: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
             contrast: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-palette"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.74 1.7-1.67 0-.42-.16-.82-.44-1.12-.27-.3-.43-.7-.43-1.13 0-.93.75-1.68 1.68-1.68h2.09c3.04 0 5.4-2.46 5.4-5.5 0-4.97-4.48-9-10-9z"/></svg>`,
@@ -2120,6 +2122,7 @@
         const itemsList = [
             { id: 'home', title: 'Home', category: 'Navigation', icon: icons.home, url: 'https://astrong.xyz' },
             { id: 'schedule', title: 'Schedule Portal', category: 'Navigation', icon: icons.schedule, url: 'https://schedule.astrong.xyz' },
+            { id: 'school', title: 'School Schedule', category: 'Schedule', icon: icons.school, url: 'https://schedule.astrong.xyz/school/' },
             { id: 'starbucks', title: 'Starbucks Schedule', category: 'Schedule', icon: icons.starbucks, url: 'https://schedule.astrong.xyz/starbucks/' },
             { id: 'utility', title: 'Utility Portal', category: 'Navigation', icon: icons.utility, url: 'https://utility.astrong.xyz' },
             { id: 'contrast', title: 'Color Contrast', category: 'Utilities', icon: icons.contrast, url: 'https://utility.astrong.xyz/contrast/' },
@@ -2131,7 +2134,6 @@
             { id: 'text', title: 'Text Toolkit', category: 'Utilities', icon: icons.text, url: 'https://utility.astrong.xyz/text/' },
             { id: 'time', title: 'Time', category: 'Utilities', icon: icons.time, url: 'https://utility.astrong.xyz/time/' },
             { id: 'about', title: 'About Austin', category: 'Navigation', icon: icons.about, url: 'https://astrong.xyz/about/' },
-            { id: 'control', title: 'Control Panel', category: 'Navigation', icon: icons.control, url: 'https://control.astrong.xyz' },
             { id: 'theme-toggle', title: 'Toggle Light / Dark Mode', category: 'Actions', icon: icons.theme, action: () => {
                 const currentMode = localStorage.getItem('astrong_mode') || 'dark';
                 const newMode = currentMode === 'light' ? 'dark' : 'light';

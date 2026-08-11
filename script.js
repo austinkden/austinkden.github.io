@@ -721,11 +721,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function initLiveStatusBar() {
         const statusBar = document.getElementById('live-status-bar');
         const statusText = document.getElementById('live-status-text');
+        const statusIcon = document.getElementById('live-status-icon') || statusBar.querySelector('.live-dot, .live-icon');
 
         if (!statusBar || !statusText) return;
 
         const apiKey = 'AIzaSyBIwrZ7LnEPCEGs5CM_Pq61YtGZ3jHVQHY';
         const calendarId = 'dolphin.kden@gmail.com';
+        const schoolCalendarId = 'f6c70c75c77b7dbe2af2320f595ceb5c787024238c5be9db11476e9bc8f6f223@group.calendar.google.com';
 
         // Fallback schedule data object
         const FALLBACK_STARBUCKS_SCHEDULE = {};
@@ -733,9 +735,21 @@ document.addEventListener('DOMContentLoaded', () => {
         let apiDisabled = false;
         let apiWarned = false;
 
+        const statusIcons = {
+            'at-school': `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+            'at-work': `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/><path d="M6 2v2"/><path d="M17 12h1a3 3 0 0 1 0 6h-1"/></svg>`,
+            'listening': `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+            'available': `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`,
+            'busy': `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+            'unavailable': `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`
+        };
+
         function updateUI(status, label) {
             statusBar.setAttribute('data-status', status);
             statusText.textContent = label;
+            if (statusIcon) {
+                statusIcon.innerHTML = statusIcons[status] || statusIcons['available'];
+            }
         }
 
         function parseCalendarEvents(items) {
@@ -750,7 +764,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     start = new Date(event.start.dateTime);
                     end = new Date(event.end.dateTime);
                 } else if (event.start && event.start.date) {
-                    // Parse all-day events in local timezone midnight
                     const [sy, sm, sd] = event.start.date.split('-').map(Number);
                     const [ey, em, ed] = event.end.date.split('-').map(Number);
                     start = new Date(sy, sm - 1, sd, 0, 0, 0);
@@ -761,11 +774,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const summary = (event.summary || '').trim().toLowerCase();
                 const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
+                const isSchool = summary.includes('school');
                 const isCalendarBlock = summary.includes('calendar block');
                 const isBusy = event.transparency !== 'transparent';
 
                 if (isStarbucks) {
                     events.push({ type: 'at-work', start, end });
+                } else if (isSchool) {
+                    events.push({ type: 'at-school', start, end });
                 } else if (isCalendarBlock && isBusy) {
                     events.push({ type: 'unavailable', start, end });
                 } else if (isBusy) {
@@ -780,7 +796,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const pad = (n) => String(n).padStart(2, '0');
             const events = [];
 
-            // Check yesterday, today, and tomorrow to properly capture overnight or adjacent shifts
             for (let dayOffset = -1; dayOffset <= 1; dayOffset++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
                 const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -825,7 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const m = Math.floor((secs % 3600) / 60);
             const s = secs % 60;
 
-            const showSeconds = secs < 300; // Less than 5 minutes
+            const showSeconds = secs < 300;
 
             const parts = [];
             if (d > 0) parts.push(`${d}d`);
@@ -843,6 +858,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function evaluateStatusFromEvents(events, now) {
             let activeAtWork = null;
+            let activeAtSchool = null;
             let activeUnavailable = null;
             let activeBusy = null;
             let upcomingEvent = null;
@@ -850,17 +866,13 @@ document.addEventListener('DOMContentLoaded', () => {
             for (const evt of events) {
                 if (evt.start <= now && now < evt.end) {
                     if (evt.type === 'at-work') {
-                        if (!activeAtWork || evt.end > activeAtWork.end) {
-                            activeAtWork = evt;
-                        }
+                        if (!activeAtWork || evt.end > activeAtWork.end) activeAtWork = evt;
+                    } else if (evt.type === 'at-school') {
+                        if (!activeAtSchool || evt.end > activeAtSchool.end) activeAtSchool = evt;
                     } else if (evt.type === 'unavailable') {
-                        if (!activeUnavailable || evt.end > activeUnavailable.end) {
-                            activeUnavailable = evt;
-                        }
+                        if (!activeUnavailable || evt.end > activeUnavailable.end) activeUnavailable = evt;
                     } else if (evt.type === 'busy') {
-                        if (!activeBusy || evt.end > activeBusy.end) {
-                            activeBusy = evt;
-                        }
+                        if (!activeBusy || evt.end > activeBusy.end) activeBusy = evt;
                     }
                 } else if (evt.start > now) {
                     if (!upcomingEvent || evt.start < upcomingEvent.start) {
@@ -869,13 +881,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            const activeEvent = activeAtWork || activeUnavailable || activeBusy;
+            const activeEvent = activeAtWork || activeAtSchool || activeUnavailable || activeBusy;
 
             if (activeEvent) {
                 const totalSeconds = Math.max(1, (activeEvent.end.getTime() - now.getTime()) / 1000);
                 const statusType = activeEvent.type;
                 let prefix = 'Busy';
                 if (statusType === 'at-work') prefix = 'At work';
+                else if (statusType === 'at-school') prefix = 'At school';
                 else if (statusType === 'unavailable') prefix = 'Unavailable';
                 const durationStr = formatDurationText(totalSeconds);
 
@@ -919,16 +932,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!apiDisabled) {
                 const timeMin = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
                 const timeMax = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-                const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&singleEvents=true&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&orderBy=startTime`;
+                
+                const url1 = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&singleEvents=true&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&orderBy=startTime`;
+                const url2 = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(schoolCalendarId)}/events?key=${apiKey}&singleEvents=true&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&orderBy=startTime`;
 
                 try {
-                    const res = await fetch(url);
-                    if (!res.ok) {
-                        throw new Error(`HTTP ${res.status}`);
+                    const [res1, res2] = await Promise.allSettled([fetch(url1), fetch(url2)]);
+                    let combinedItems = [];
+
+                    if (res1.status === 'fulfilled' && res1.value.ok) {
+                        const data1 = await res1.value.json();
+                        if (data1.items) combinedItems.push(...data1.items);
                     }
-                    const data = await res.json();
-                    events = parseCalendarEvents(data.items);
-                    apiSuccess = true;
+                    if (res2.status === 'fulfilled' && res2.value.ok) {
+                        const data2 = await res2.value.json();
+                        if (data2.items) combinedItems.push(...data2.items);
+                    }
+
+                    if (combinedItems.length > 0) {
+                        events = parseCalendarEvents(combinedItems);
+                        apiSuccess = true;
+                    }
                 } catch (err) {
                     try {
                         const proxyUrl = `/api/calendar?calendarId=${encodeURIComponent(calendarId)}`;
@@ -940,13 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 apiSuccess = true;
                             }
                         }
-                    } catch (proxyErr) {
-                    }
-
-                    if (!apiSuccess && !apiWarned) {
-                        console.warn(`[Live Status] Google Calendar REST API returned error. Falling back to live /api/calendar proxy or local schedule.`);
-                        apiWarned = true;
-                    }
+                    } catch (proxyErr) {}
                 }
             }
 
