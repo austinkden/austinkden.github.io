@@ -23,8 +23,7 @@
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
         const expires = `expires=${d.toUTCString()}`;
         const domainStr = window.location.hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
-        const secureStr = window.location.protocol === 'https:' ? '; Secure' : '';
-        document.cookie = `${name}=${value}; ${expires}; path=/; SameSite=Lax${domainStr}${secureStr}`;
+        document.cookie = `${name}=${value}; ${expires}; path=/; SameSite=Lax; Secure${domainStr}`;
     }
 
     // Device & Session Telemetry Collector
@@ -829,8 +828,8 @@
 
     function setThemeCookie(name, val) {
         const hostname = window.location.hostname;
-        const domain = hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
-        document.cookie = `${name}=${val}; path=/${domain}; max-age=31536000; SameSite=Lax`;
+        const domainStr = hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
+        document.cookie = `${name}=${val}; path=/; max-age=31536000; SameSite=Lax; Secure${domainStr}`;
     }
 
     // 1. Theme Loader
