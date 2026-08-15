@@ -23,7 +23,8 @@
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
         const expires = `expires=${d.toUTCString()}`;
         const domainStr = window.location.hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
-        document.cookie = `${name}=${value}; ${expires}; path=/${domainStr}; SameSite=Lax`;
+        const secureStr = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `${name}=${value}; ${expires}; path=/; SameSite=Lax${domainStr}${secureStr}`;
     }
 
     // Device & Session Telemetry Collector
