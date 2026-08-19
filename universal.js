@@ -997,7 +997,7 @@
         } else if (key === 'u') {
             window.location.href = 'https://utility.astrong.xyz';
         } else if (key === 'a') {
-            window.location.href = 'https://astrong.xyz/about';
+            window.location.href = 'https://about.astrong.xyz';
         } else if (e.key === 'Escape') {
             const backLink = document.querySelector('.back-link');
             if (backLink) {
@@ -1849,7 +1849,7 @@
                 },
                 {
                     label: 'About',
-                    action: () => window.location.href = 'https://astrong.xyz/about'
+                    action: () => window.location.href = 'https://about.astrong.xyz'
                 }
             ];
 
@@ -2203,7 +2203,7 @@
             { id: 'qrcode', title: 'QR Code Generator', category: 'Utilities', icon: icons.qrcode, url: 'https://utility.astrong.xyz/qrcode/' },
             { id: 'text', title: 'Text Toolkit', category: 'Utilities', icon: icons.text, url: 'https://utility.astrong.xyz/text/' },
             { id: 'time', title: 'Time', category: 'Utilities', icon: icons.time, url: 'https://utility.astrong.xyz/time/' },
-            { id: 'about', title: 'About Austin', category: 'Navigation', icon: icons.about, url: 'https://astrong.xyz/about/' },
+            { id: 'about', title: 'About Austin', category: 'Navigation', icon: icons.about, url: 'https://about.astrong.xyz/' },
             {
                 id: 'theme-toggle', title: 'Toggle Light / Dark Mode', category: 'Actions', icon: icons.theme, action: () => {
                     const isSubHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
