@@ -574,6 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const trigger = accentSelect.querySelector('.select-trigger');
         const triggerText = accentSelect.querySelector('.select-trigger-text');
+        const optionsEl = accentSelect.querySelector('.select-options');
         const options = accentSelect.querySelectorAll('.select-option');
 
         const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
@@ -597,10 +598,42 @@ document.addEventListener('DOMContentLoaded', () => {
             activeOption.classList.add('selected');
         }
 
+        // Move the options panel to document.body so it escapes overflow clipping
+        document.body.appendChild(optionsEl);
+        optionsEl.style.position = 'fixed';
+        optionsEl.style.zIndex = '99999';
+
+        function positionDropdown() {
+            const rect = trigger.getBoundingClientRect();
+            optionsEl.style.top = (rect.bottom + 6) + 'px';
+            optionsEl.style.left = rect.left + 'px';
+            optionsEl.style.width = rect.width + 'px';
+        }
+
+        let isOpen = false;
+
+        function openDropdown() {
+            isOpen = true;
+            accentSelect.classList.add('open');
+            optionsEl.style.display = 'flex';
+            optionsEl.style.flexDirection = 'column';
+            positionDropdown();
+        }
+
+        function closeDropdown() {
+            isOpen = false;
+            accentSelect.classList.remove('open');
+            optionsEl.style.display = 'none';
+        }
+
         // Toggle open/close on click
         trigger.addEventListener('click', (e) => {
             e.stopPropagation();
-            accentSelect.classList.toggle('open');
+            if (isOpen) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
         });
 
         // Click handler for options
@@ -608,28 +641,34 @@ document.addEventListener('DOMContentLoaded', () => {
             option.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const themeName = option.getAttribute('data-value');
-                
+
                 options.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
-                
+
                 triggerText.textContent = option.textContent;
                 triggerText.style.color = window.getComputedStyle(option).color;
-                
+
                 localStorage.setItem('astrong_accent', themeName);
                 const currentMode = localStorage.getItem('astrong_mode') || 'dark';
-                
+
                 if (window.applyTheme) {
                     window.applyTheme(themeName, currentMode);
                 }
-                
-                accentSelect.classList.remove('open');
+
+                closeDropdown();
             });
         });
 
         // Close dropdown when clicking outside
-        document.addEventListener('click', () => {
-            accentSelect.classList.remove('open');
+        document.addEventListener('click', (e) => {
+            if (!trigger.contains(e.target) && !optionsEl.contains(e.target)) {
+                closeDropdown();
+            }
         });
+
+        // Reposition on scroll/resize
+        window.addEventListener('scroll', () => { if (isOpen) positionDropdown(); }, true);
+        window.addEventListener('resize', () => { if (isOpen) positionDropdown(); });
     }
 
     function initSettingsModal() {
