@@ -2338,187 +2338,16 @@
         });
     }
 
-    function initUniversalHeader() {
-        let existingHeader = document.querySelector('.top-controls-bar');
-        
-        if (!existingHeader) {
-            existingHeader = document.createElement('div');
-            existingHeader.className = 'top-controls-bar';
-            existingHeader.id = 'astrong-universal-header';
-            existingHeader.innerHTML = `
-                <a href="https://astrong.xyz" class="brand-pill" style="color: inherit; text-decoration: none;">
-                    <div class="pfp-wrapper-small">
-                        <img src="/assets/images/pfp-nine-sided-cookie.png" alt="Austin Cookie Profile" class="pfp">
-                    </div>
-                    <span class="brand-name">astrong.xyz</span>
-                </a>
-                <div class="controls-group">
-                    <button id="search-btn" class="control-btn" aria-label="Command Palette" title="Command Palette (Ctrl+K)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <span class="btn-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span>
-                    </button>
-                    <button id="settings-btn" class="control-btn" aria-label="Settings" title="Settings">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    </button>
-                    <button id="help-btn" class="control-btn" aria-label="Help" title="Help & Shortcuts">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    </button>
-                </div>
-            `;
-            document.body.prepend(existingHeader);
-        }
+    function injectUniversalNavStyles() {
+        if (document.getElementById('astrong-universal-nav-styles')) return;
 
-        if (!existingHeader.querySelector('.hdr-nav')) {
-            const brandPill = existingHeader.querySelector('.brand-pill');
-            const navContainer = document.createElement('nav');
-            navContainer.className = 'hdr-nav';
-            navContainer.innerHTML = `
-                <div class="hdr-dropdown-wrapper">
-                    <a href="https://schedule.astrong.xyz" class="hdr-nav-btn">
-                        <span>Schedule</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </a>
-                    <div class="hdr-dropdown-menu">
-                        <a href="https://schedule.astrong.xyz/starbucks" class="hdr-dropdown-item">Starbucks Shifts</a>
-                        <a href="https://schedule.astrong.xyz/school/" class="hdr-dropdown-item">School Schedule</a>
-                        <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="hdr-dropdown-item">Find a Time</a>
-                    </div>
-                </div>
-                <div class="hdr-dropdown-wrapper">
-                    <a href="https://utility.astrong.xyz" class="hdr-nav-btn">
-                        <span>Utilities</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </a>
-                    <div class="hdr-dropdown-menu">
-                        <a href="https://utility.astrong.xyz/contrast" class="hdr-dropdown-item">Color Contrast</a>
-                        <a href="https://utility.astrong.xyz/metar" class="hdr-dropdown-item">METAR Weather</a>
-                        <a href="https://utility.astrong.xyz/password" class="hdr-dropdown-item">Password Generator</a>
-                        <a href="https://utility.astrong.xyz/qrcode" class="hdr-dropdown-item">QR Code Generator</a>
-                        <a href="https://utility.astrong.xyz/lorem" class="hdr-dropdown-item">Lorem Ipsum</a>
-                        <a href="https://utility.astrong.xyz/progress" class="hdr-dropdown-item">Progress Tracker</a>
-                        <a href="https://utility.astrong.xyz/text" class="hdr-dropdown-item">Text Tools</a>
-                        <a href="https://utility.astrong.xyz/time" class="hdr-dropdown-item">Time Converter</a>
-                    </div>
-                </div>
-                <div class="hdr-dropdown-wrapper">
-                    <a href="https://about.astrong.xyz" class="hdr-nav-btn">
-                        <span>About</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </a>
-                    <div class="hdr-dropdown-menu">
-                        <a href="https://about.astrong.xyz" class="hdr-dropdown-item">About Austin</a>
-                    </div>
-                </div>
-            `;
-
-            if (brandPill) {
-                brandPill.insertAdjacentElement('afterend', navContainer);
-            } else {
-                existingHeader.prepend(navContainer);
-            }
-
-            // Portal-based dropdown: move each menu to body so CSS :hover can never interfere
-            existingHeader.querySelectorAll('.hdr-dropdown-wrapper').forEach(wrapper => {
-                const menu = wrapper.querySelector('.hdr-dropdown-menu');
-                if (!menu) return;
-
-                // Move menu to body as a portal
-                document.body.appendChild(menu);
-                menu.style.position = 'fixed';
-                menu.style.display = 'none';
-                menu.style.flexDirection = 'column';
-                menu.style.gap = '2px';
-
-                let closeTimer = null;
-                let isOpen = false;
-
-                function positionMenu() {
-                    const triggerRect = wrapper.getBoundingClientRect();
-                    let left = triggerRect.left;
-                    const menuWidth = menu.offsetWidth || 185;
-                    if (left + menuWidth > window.innerWidth - 8) {
-                        left = window.innerWidth - menuWidth - 8;
-                    }
-                    menu.style.left = left + 'px';
-                    menu.style.top = (triggerRect.bottom + 2) + 'px';
-                }
-
-                function openMenu() {
-                    isOpen = true;
-                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-                    // Close all other portal dropdowns
-                    existingHeader.querySelectorAll('.hdr-dropdown-menu').forEach(m => {
-                        if (m !== menu) { m.style.display = 'none'; }
-                    });
-                    document.querySelectorAll('.hdr-dropdown-menu').forEach(m => {
-                        if (m !== menu) { m.style.display = 'none'; }
-                    });
-                    menu.style.display = 'flex';
-                    positionMenu();
-                }
-
-                function closeMenu(delay) {
-                    if (closeTimer) clearTimeout(closeTimer);
-                    closeTimer = setTimeout(() => {
-                        isOpen = false;
-                        menu.style.display = 'none';
-                    }, delay || 0);
-                }
-
-                wrapper.addEventListener('mouseenter', openMenu);
-                wrapper.addEventListener('mouseleave', () => closeMenu(200));
-                menu.addEventListener('mouseenter', () => {
-                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-                });
-                menu.addEventListener('mouseleave', () => closeMenu(200));
-
-                window.addEventListener('resize', () => { if (isOpen) positionMenu(); });
-                window.addEventListener('scroll', () => { if (isOpen) positionMenu(); }, true);
-            });
-        }
-
-        // Re-attach header control buttons if dynamically created
-        const searchBtn = existingHeader.querySelector('#search-btn');
-        if (searchBtn && !searchBtn.dataset.bound) {
-            searchBtn.dataset.bound = 'true';
-            searchBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                openCommandPalette();
-            });
-        }
-
-        const settingsBtn = existingHeader.querySelector('#settings-btn');
-        if (settingsBtn && !settingsBtn.dataset.bound) {
-            settingsBtn.dataset.bound = 'true';
-            settingsBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (typeof window.openSettingsModal === 'function') {
-                    window.openSettingsModal();
-                }
-            });
-        }
-
-        const helpBtn = existingHeader.querySelector('#help-btn');
-        if (helpBtn && !helpBtn.dataset.bound) {
-            helpBtn.dataset.bound = 'true';
-            helpBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (typeof window.openHelpModal === 'function') {
-                    window.openHelpModal();
-                }
-            });
-        }
-    }
-
-    function initUniversalFooter() {
-        if (document.getElementById('astrong-site-footer')) return;
-
-        const footerStyle = document.createElement('style');
-        footerStyle.id = 'astrong-footer-styles';
-        footerStyle.textContent = `
+        const navStyle = document.createElement('style');
+        navStyle.id = 'astrong-universal-nav-styles';
+        navStyle.textContent = `
             .top-controls-bar {
                 position: relative;
                 width: 100%;
+                align-self: stretch;
                 z-index: 1000;
                 display: grid;
                 grid-template-columns: 1fr auto 1fr;
@@ -2529,6 +2358,7 @@
                 user-select: none;
                 -webkit-user-select: none;
                 box-sizing: border-box;
+                flex-shrink: 0;
             }
             :root.light-mode .top-controls-bar {
                 background: #fdfbff;
@@ -2544,12 +2374,14 @@
                 letter-spacing: -0.01em;
                 justify-self: flex-start;
                 text-decoration: none;
+                flex-shrink: 0;
             }
             .controls-group {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
                 justify-self: flex-end;
+                flex-shrink: 0;
             }
             .control-btn {
                 display: inline-flex;
@@ -2564,6 +2396,9 @@
                 font-size: 0.85rem;
                 font-weight: 600;
                 transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+                user-select: none;
+                -webkit-user-select: none;
+                flex-shrink: 0;
             }
             .control-btn:hover {
                 background: var(--surface, #1d1b20);
@@ -2625,6 +2460,7 @@
                 transition: background-color 0.15s ease, color 0.15s ease;
                 user-select: none;
                 -webkit-user-select: none;
+                white-space: nowrap;
             }
             .hdr-nav-btn:hover, .hdr-dropdown-wrapper:hover .hdr-nav-btn {
                 background: rgba(255, 255, 255, 0.08);
@@ -2658,7 +2494,6 @@
                 right: 0;
                 height: 14px;
             }
-            /* Dropdown display is fully JS-controlled (portal pattern) — no CSS :hover rule */
             .hdr-dropdown-item {
                 display: flex;
                 align-items: center;
@@ -2671,10 +2506,224 @@
                 transition: background-color 0.12s ease, color 0.12s ease;
                 user-select: none;
                 -webkit-user-select: none;
+                white-space: nowrap;
             }
             .hdr-dropdown-item:hover {
                 background: var(--primary, #8859ff);
                 color: #ffffff;
+            }
+            .mobile-menu-btn {
+                display: none;
+            }
+            .mobile-drawer-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 9998;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+            }
+            .mobile-drawer {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: min(340px, 86vw);
+                background: var(--surface, #1d1b20);
+                border-left: 1px solid var(--outline, #49454f);
+                z-index: 9999;
+                transform: translateX(100%);
+                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                display: flex;
+                flex-direction: column;
+                user-select: none;
+                -webkit-user-select: none;
+                box-sizing: border-box;
+            }
+            :root.light-mode .mobile-drawer {
+                background: #fdfbff;
+                border-left-color: rgba(0, 0, 0, 0.1);
+            }
+            body.mobile-drawer-open {
+                overflow: hidden !important;
+            }
+            body.mobile-drawer-open .mobile-drawer-overlay {
+                display: block;
+                opacity: 1;
+                pointer-events: auto;
+            }
+            body.mobile-drawer-open .mobile-drawer {
+                transform: translateX(0);
+            }
+            .mobile-drawer-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem 1.25rem;
+                border-bottom: 1px solid var(--outline, rgba(255, 255, 255, 0.08));
+            }
+            :root.light-mode .mobile-drawer-header {
+                border-bottom-color: rgba(0, 0, 0, 0.08);
+            }
+            .mobile-drawer-body {
+                flex: 1;
+                overflow-y: auto;
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1.4rem;
+            }
+            .mobile-drawer-section {
+                display: flex;
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+            .mobile-drawer-section-title {
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: var(--on-surface-variant, #cac4d0);
+                opacity: 0.85;
+            }
+            :root.light-mode .mobile-drawer-section-title {
+                color: #49454f;
+            }
+            .mobile-nav-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.35rem;
+            }
+            .mobile-nav-link {
+                display: flex;
+                align-items: center;
+                gap: 0.65rem;
+                padding: 8px 12px;
+                border-radius: 12px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                color: var(--on-surface, #e6e1e5);
+                text-decoration: none;
+                font-size: 0.9rem;
+                font-weight: 600;
+                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            }
+            :root.light-mode .mobile-nav-link {
+                background: #e7e0ec;
+                border-color: #79747e;
+                color: #1d1b20;
+            }
+            .mobile-nav-link:hover {
+                border-color: var(--primary, #8859ff);
+                color: var(--primary, #8859ff);
+            }
+            .mobile-nav-sublinks {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+                padding-left: 0.5rem;
+            }
+            .mobile-nav-sublink {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                padding: 7px 12px;
+                border-radius: 8px;
+                color: var(--on-surface-variant, #cac4d0);
+                text-decoration: none;
+                font-size: 0.85rem;
+                font-weight: 500;
+                transition: background-color 0.15s ease, color 0.15s ease;
+            }
+            :root.light-mode .mobile-nav-sublink {
+                color: #49454f;
+            }
+            .mobile-nav-sublink:hover {
+                background: var(--surface-variant, #2d2a33);
+                color: var(--on-surface, #ffffff);
+            }
+            :root.light-mode .mobile-nav-sublink:hover {
+                background: #e7e0ec;
+                color: #1d1b20;
+            }
+            .mobile-chips-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.4rem;
+                margin-top: 0.2rem;
+            }
+            .mobile-chip {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 6px 10px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 10px;
+                color: var(--on-surface-variant, #cac4d0);
+                text-decoration: none;
+                font-size: 0.8rem;
+                font-weight: 500;
+                text-align: center;
+                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            }
+            :root.light-mode .mobile-chip {
+                background: #e7e0ec;
+                border-color: #79747e;
+                color: #49454f;
+            }
+            .mobile-chip:hover {
+                border-color: var(--primary, #8859ff);
+                color: var(--primary, #8859ff);
+            }
+            .mobile-actions-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.45rem;
+            }
+            .mobile-action-item {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 10px 12px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 12px;
+                color: var(--on-surface, #e6e1e5);
+                font-size: 0.88rem;
+                font-weight: 600;
+                cursor: pointer;
+                text-align: left;
+                width: 100%;
+                box-sizing: border-box;
+                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            }
+            :root.light-mode .mobile-action-item {
+                background: #e7e0ec;
+                border-color: #79747e;
+                color: #1d1b20;
+            }
+            .mobile-action-item:hover {
+                border-color: var(--primary, #8859ff);
+                color: var(--primary, #8859ff);
+            }
+            .pfp-wrapper-small {
+                width: 28px;
+                height: 28px;
+                clip-path: url('#active-clip');
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-shrink: 0;
+            }
+            .pfp-wrapper-small img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
             }
             .site-footer {
                 width: 100%;
@@ -2692,21 +2741,6 @@
                 background-color: rgba(247, 245, 249, 0.75);
                 border-top-color: rgba(0, 0, 0, 0.08);
                 color: #49454f;
-            }
-            .pfp-wrapper-small {
-                width: 28px;
-                height: 28px;
-                clip-path: url('#active-clip');
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-shrink: 0;
-            }
-            .pfp-wrapper-small img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 50%;
             }
             .site-footer-inner {
                 max-width: 1000px;
@@ -2837,8 +2871,447 @@
             .site-footer-github:hover {
                 color: var(--primary, #8859ff);
             }
+            @media (max-width: 768px) {
+                .hdr-nav {
+                    display: none !important;
+                }
+                #settings-btn, #help-btn {
+                    display: none !important;
+                }
+                .mobile-menu-btn {
+                    display: inline-flex !important;
+                }
+                .top-controls-bar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0.6rem 0.85rem;
+                    gap: 0.4rem;
+                    width: 100%;
+                    max-width: 100vw;
+                    box-sizing: border-box;
+                }
+                .brand-pill {
+                    gap: 0.4rem;
+                    font-size: 0.85rem;
+                    flex-shrink: 0;
+                }
+                .controls-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    flex-shrink: 0;
+                }
+                .control-btn {
+                    padding: 6px 9px;
+                    font-size: 0.85rem;
+                    gap: 0;
+                    border-radius: 10px;
+                }
+                .btn-kbd {
+                    display: none !important;
+                }
+            }
+            @media (max-width: 480px) {
+                .top-controls-bar {
+                    padding: 0.5rem 0.65rem;
+                    gap: 0.3rem;
+                }
+                .control-btn {
+                    padding: 5px 8px;
+                }
+            }
         `;
-        document.head.appendChild(footerStyle);
+        (document.head || document.documentElement).appendChild(navStyle);
+    }
+
+    // Inject navigation and header styles immediately
+    injectUniversalNavStyles();
+
+    function initMobileDrawer() {
+        let overlay = document.getElementById('astrong-mobile-drawer-overlay');
+        let drawer = document.getElementById('astrong-mobile-drawer');
+
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'astrong-mobile-drawer-overlay';
+            overlay.className = 'mobile-drawer-overlay';
+            document.body.appendChild(overlay);
+        }
+
+        if (!drawer) {
+            drawer = document.createElement('aside');
+            drawer.id = 'astrong-mobile-drawer';
+            drawer.className = 'mobile-drawer';
+            drawer.setAttribute('aria-label', 'Mobile Navigation Drawer');
+            drawer.innerHTML = `
+                <div class="mobile-drawer-header">
+                    <a href="https://astrong.xyz" class="brand-pill" style="color: inherit; text-decoration: none;">
+                        <div class="pfp-wrapper-small">
+                            <img src="/assets/images/pfp-nine-sided-cookie.png" alt="Austin Cookie Profile" class="pfp">
+                        </div>
+                        <span class="brand-name">astrong.xyz</span>
+                    </a>
+                    <button id="mobile-drawer-close" class="control-btn" aria-label="Close Navigation Menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="mobile-drawer-body">
+                    <div class="mobile-drawer-section">
+                        <span class="mobile-drawer-section-title">Schedule</span>
+                        <div class="mobile-nav-group">
+                            <a href="https://schedule.astrong.xyz" class="mobile-nav-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                <span>Schedule Hub</span>
+                            </a>
+                            <div class="mobile-nav-sublinks">
+                                <a href="https://schedule.astrong.xyz/starbucks" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/><path d="M6 2v2"/><path d="M17 12h1a3 3 0 0 1 0 6h-1"/></svg>
+                                    <span>Starbucks Shifts</span>
+                                </a>
+                                <a href="https://schedule.astrong.xyz/school/" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-graduation-cap"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                                    <span>School Schedule</span>
+                                </a>
+                                <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M10 16h4"/><path d="M12 14v4"/></svg>
+                                    <span>Find a Time</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-drawer-section">
+                        <span class="mobile-drawer-section-title">Utilities</span>
+                        <div class="mobile-nav-group">
+                            <a href="https://utility.astrong.xyz" class="mobile-nav-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                                <span>Utilities Hub</span>
+                            </a>
+                            <div class="mobile-chips-grid">
+                                <a href="https://utility.astrong.xyz/contrast" class="mobile-chip">Contrast</a>
+                                <a href="https://utility.astrong.xyz/metar" class="mobile-chip">METAR</a>
+                                <a href="https://utility.astrong.xyz/password" class="mobile-chip">Password</a>
+                                <a href="https://utility.astrong.xyz/qrcode" class="mobile-chip">QR Code</a>
+                                <a href="https://utility.astrong.xyz/lorem" class="mobile-chip">Lorem</a>
+                                <a href="https://utility.astrong.xyz/progress" class="mobile-chip">Progress</a>
+                                <a href="https://utility.astrong.xyz/text" class="mobile-chip">Text Tools</a>
+                                <a href="https://utility.astrong.xyz/time" class="mobile-chip">Time</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-drawer-section">
+                        <span class="mobile-drawer-section-title">About</span>
+                        <div class="mobile-nav-group">
+                            <a href="https://about.astrong.xyz" class="mobile-nav-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <span>About Austin</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mobile-drawer-section mobile-drawer-actions">
+                        <span class="mobile-drawer-section-title">Controls</span>
+                        <div class="mobile-actions-list">
+                            <button id="mobile-drawer-settings-btn" class="mobile-action-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                <span>Settings</span>
+                            </button>
+                            <button id="mobile-drawer-help-btn" class="mobile-action-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <span>Help & Shortcuts</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(drawer);
+        }
+
+        function openDrawer() {
+            document.body.classList.add('mobile-drawer-open');
+        }
+
+        function closeDrawer() {
+            document.body.classList.remove('mobile-drawer-open');
+        }
+
+        // Connect hamburger button(s)
+        document.querySelectorAll('#mobile-menu-btn, .mobile-menu-btn').forEach(btn => {
+            if (!btn.dataset.drawerBound) {
+                btn.dataset.drawerBound = 'true';
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openDrawer();
+                });
+            }
+        });
+
+        // Close button
+        const closeBtn = drawer.querySelector('#mobile-drawer-close');
+        if (closeBtn && !closeBtn.dataset.bound) {
+            closeBtn.dataset.bound = 'true';
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeDrawer();
+            });
+        }
+
+        // Overlay click
+        if (overlay && !overlay.dataset.bound) {
+            overlay.dataset.bound = 'true';
+            overlay.addEventListener('click', closeDrawer);
+        }
+
+        // ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.body.classList.contains('mobile-drawer-open')) {
+                closeDrawer();
+            }
+        });
+
+        // Close on navigation link click
+        drawer.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                closeDrawer();
+            });
+        });
+
+        // Settings & Help actions
+        const settingsAction = drawer.querySelector('#mobile-drawer-settings-btn');
+        if (settingsAction && !settingsAction.dataset.bound) {
+            settingsAction.dataset.bound = 'true';
+            settingsAction.addEventListener('click', () => {
+                closeDrawer();
+                if (typeof window.openSettingsModal === 'function') {
+                    window.openSettingsModal();
+                }
+            });
+        }
+
+        const helpAction = drawer.querySelector('#mobile-drawer-help-btn');
+        if (helpAction && !helpAction.dataset.bound) {
+            helpAction.dataset.bound = 'true';
+            helpAction.addEventListener('click', () => {
+                closeDrawer();
+                if (typeof window.openHelpModal === 'function') {
+                    window.openHelpModal();
+                }
+            });
+        }
+    }
+
+    function initUniversalHeader() {
+        injectUniversalNavStyles();
+        let existingHeader = document.querySelector('.top-controls-bar');
+        
+        if (!existingHeader) {
+            existingHeader = document.createElement('div');
+            existingHeader.className = 'top-controls-bar';
+            existingHeader.id = 'astrong-universal-header';
+            existingHeader.innerHTML = `
+                <a href="https://astrong.xyz" class="brand-pill" style="color: inherit; text-decoration: none;">
+                    <div class="pfp-wrapper-small">
+                        <img src="/assets/images/pfp-nine-sided-cookie.png" alt="Austin Cookie Profile" class="pfp">
+                    </div>
+                    <span class="brand-name">astrong.xyz</span>
+                </a>
+                <div class="controls-group">
+                    <button id="search-btn" class="control-btn" aria-label="Command Palette" title="Command Palette (Ctrl+K)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <span class="btn-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+                    </button>
+                    <button id="settings-btn" class="control-btn" aria-label="Settings" title="Settings">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </button>
+                    <button id="help-btn" class="control-btn" aria-label="Help" title="Help & Shortcuts">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </button>
+                    <button id="mobile-menu-btn" class="control-btn mobile-menu-btn" aria-label="Open Navigation Menu" title="Menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                </div>
+            `;
+            document.body.prepend(existingHeader);
+        }
+
+        if (!existingHeader.querySelector('#mobile-menu-btn')) {
+            const controlsGroup = existingHeader.querySelector('.controls-group');
+            if (controlsGroup) {
+                const mobBtn = document.createElement('button');
+                mobBtn.id = 'mobile-menu-btn';
+                mobBtn.className = 'control-btn mobile-menu-btn';
+                mobBtn.setAttribute('aria-label', 'Open Navigation Menu');
+                mobBtn.setAttribute('title', 'Menu');
+                mobBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>`;
+                controlsGroup.appendChild(mobBtn);
+            }
+        }
+
+        initMobileDrawer();
+
+        if (!existingHeader.querySelector('.hdr-nav')) {
+            const brandPill = existingHeader.querySelector('.brand-pill');
+            const navContainer = document.createElement('nav');
+            navContainer.className = 'hdr-nav';
+            navContainer.innerHTML = `
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://schedule.astrong.xyz" class="hdr-nav-btn">
+                        <span>Schedule</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://schedule.astrong.xyz/starbucks" class="hdr-dropdown-item">Starbucks Shifts</a>
+                        <a href="https://schedule.astrong.xyz/school/" class="hdr-dropdown-item">School Schedule</a>
+                        <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="hdr-dropdown-item">Find a Time</a>
+                    </div>
+                </div>
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://utility.astrong.xyz" class="hdr-nav-btn">
+                        <span>Utilities</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://utility.astrong.xyz/contrast" class="hdr-dropdown-item">Color Contrast</a>
+                        <a href="https://utility.astrong.xyz/metar" class="hdr-dropdown-item">METAR Weather</a>
+                        <a href="https://utility.astrong.xyz/password" class="hdr-dropdown-item">Password Generator</a>
+                        <a href="https://utility.astrong.xyz/qrcode" class="hdr-dropdown-item">QR Code Generator</a>
+                        <a href="https://utility.astrong.xyz/lorem" class="hdr-dropdown-item">Lorem Ipsum</a>
+                        <a href="https://utility.astrong.xyz/progress" class="hdr-dropdown-item">Progress Tracker</a>
+                        <a href="https://utility.astrong.xyz/text" class="hdr-dropdown-item">Text Tools</a>
+                        <a href="https://utility.astrong.xyz/time" class="hdr-dropdown-item">Time Converter</a>
+                    </div>
+                </div>
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://about.astrong.xyz" class="hdr-nav-btn">
+                        <span>About</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://about.astrong.xyz" class="hdr-dropdown-item">About Austin</a>
+                    </div>
+                </div>
+            `;
+
+            if (brandPill) {
+                brandPill.insertAdjacentElement('afterend', navContainer);
+            } else {
+                existingHeader.prepend(navContainer);
+            }
+
+            // Portal-based dropdown: move each menu to body so CSS :hover can never interfere
+            existingHeader.querySelectorAll('.hdr-dropdown-wrapper').forEach(wrapper => {
+                const menu = wrapper.querySelector('.hdr-dropdown-menu');
+                if (!menu) return;
+
+                // Move menu to body as a portal
+                document.body.appendChild(menu);
+                menu.style.position = 'fixed';
+                menu.style.display = 'none';
+                menu.style.flexDirection = 'column';
+                menu.style.gap = '2px';
+
+                let closeTimer = null;
+                let isOpen = false;
+
+                function positionMenu() {
+                    const triggerRect = wrapper.getBoundingClientRect();
+                    let left = triggerRect.left;
+                    const menuWidth = menu.offsetWidth || 185;
+                    if (left + menuWidth > window.innerWidth - 8) {
+                        left = window.innerWidth - menuWidth - 8;
+                    }
+                    if (left < 8) {
+                        left = 8;
+                    }
+                    menu.style.left = left + 'px';
+                    menu.style.top = (triggerRect.bottom + 2) + 'px';
+                }
+
+                function openMenu() {
+                    isOpen = true;
+                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+                    // Close all other portal dropdowns
+                    document.querySelectorAll('.hdr-dropdown-menu').forEach(m => {
+                        if (m !== menu) { m.style.display = 'none'; }
+                    });
+                    menu.style.display = 'flex';
+                    positionMenu();
+                }
+
+                function closeMenu(delay) {
+                    if (closeTimer) clearTimeout(closeTimer);
+                    closeTimer = setTimeout(() => {
+                        isOpen = false;
+                        menu.style.display = 'none';
+                    }, delay || 0);
+                }
+
+                wrapper.addEventListener('mouseenter', openMenu);
+                wrapper.addEventListener('mouseleave', () => closeMenu(200));
+                wrapper.addEventListener('click', (e) => {
+                    const isTouch = window.matchMedia('(hover: none)').matches || window.innerWidth <= 768;
+                    if (isTouch) {
+                        if (!isOpen) {
+                            e.preventDefault();
+                            openMenu();
+                        }
+                    }
+                });
+
+                menu.addEventListener('mouseenter', () => {
+                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+                });
+                menu.addEventListener('mouseleave', () => closeMenu(200));
+
+                document.addEventListener('click', (e) => {
+                    if (!wrapper.contains(e.target) && !menu.contains(e.target)) {
+                        closeMenu(0);
+                    }
+                });
+
+                window.addEventListener('resize', () => { if (isOpen) positionMenu(); });
+                window.addEventListener('scroll', () => { if (isOpen) positionMenu(); }, true);
+            });
+        }
+
+        // Re-attach header control buttons if dynamically created
+        const searchBtn = existingHeader.querySelector('#search-btn');
+        if (searchBtn && !searchBtn.dataset.bound) {
+            searchBtn.dataset.bound = 'true';
+            searchBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openCommandPalette();
+            });
+        }
+
+        const settingsBtn = existingHeader.querySelector('#settings-btn');
+        if (settingsBtn && !settingsBtn.dataset.bound) {
+            settingsBtn.dataset.bound = 'true';
+            settingsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openSettingsModal === 'function') {
+                    window.openSettingsModal();
+                }
+            });
+        }
+
+        const helpBtn = existingHeader.querySelector('#help-btn');
+        if (helpBtn && !helpBtn.dataset.bound) {
+            helpBtn.dataset.bound = 'true';
+            helpBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openHelpModal === 'function') {
+                    window.openHelpModal();
+                }
+            });
+        }
+    }
+
+    function initUniversalFooter() {
+        injectUniversalNavStyles();
+        if (document.getElementById('astrong-site-footer')) return;
 
         const footer = document.createElement('footer');
         footer.id = 'astrong-site-footer';
