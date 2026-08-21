@@ -2790,63 +2790,63 @@
                 opacity: 0.8;
                 user-select: none;
                 -webkit-user-select: none;
+                font-size: 0.8rem;
+                color: var(--on-surface-variant, #cac4d0);
+                font-family: 'JetBrains Mono', monospace;
             }
             .site-footer-device .device-id-display {
-                color: inherit;
-                font-weight: normal;
+                color: var(--primary, #8859ff);
+                font-weight: 600;
                 cursor: pointer;
-                transition: opacity 0.15s ease;
-            }
-            .site-footer-device .device-id-display:hover {
-                opacity: 1;
-                text-decoration: underline;
             }
             .site-footer-nav {
                 display: flex;
+                gap: 3.5rem;
                 flex-wrap: wrap;
-                gap: 2.5rem;
             }
             .site-footer-col {
                 display: flex;
                 flex-direction: column;
-                gap: 0.5rem;
+                gap: 0.6rem;
             }
             .site-footer-col-title {
-                font-size: 0.8rem;
-                font-weight: 600;
+                font-size: 0.75rem;
+                font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.05em;
-                color: var(--on-surface, #e6e1e5);
-                opacity: 0.9;
-                margin-bottom: 0.25rem;
-                user-select: none;
-                -webkit-user-select: none;
+                letter-spacing: 0.06em;
+                color: var(--on-surface-variant, #cac4d0);
+                opacity: 0.8;
+                margin-bottom: 0.2rem;
             }
             :root.light-mode .site-footer-col-title {
-                color: #1d1b20;
+                color: #49454f;
             }
             .site-footer-col a {
                 color: var(--on-surface-variant, #cac4d0);
                 text-decoration: none;
                 font-size: 0.88rem;
                 transition: color 0.15s ease;
-                user-select: none;
-                -webkit-user-select: none;
             }
-            .site-footer-col a.site-footer-email-highlight {
-                color: var(--primary, #8859ff);
-                font-weight: normal;
+            :root.light-mode .site-footer-col a {
+                color: #49454f;
             }
             .site-footer-col a:hover {
                 color: var(--primary, #8859ff);
             }
+            .site-footer-email-highlight {
+                color: var(--on-surface, #e6e1e5) !important;
+                font-weight: 600;
+            }
+            :root.light-mode .site-footer-email-highlight {
+                color: #1d1b20 !important;
+            }
             .site-footer-bottom {
                 display: flex;
-                flex-wrap: wrap;
                 justify-content: space-between;
                 align-items: center;
+                flex-wrap: wrap;
                 gap: 1rem;
-                padding-top: 1.25rem;
+                padding-top: 1.5rem;
                 border-top: 1px solid var(--outline, rgba(255, 255, 255, 0.06));
                 font-size: 0.8rem;
                 opacity: 0.85;
@@ -2911,6 +2911,14 @@
                 .btn-kbd {
                     display: none !important;
                 }
+                .back-link {
+                    position: relative !important;
+                    top: auto !important;
+                    left: auto !important;
+                    margin: 1rem 1.25rem 0.5rem !important;
+                    display: inline-flex !important;
+                    align-self: flex-start !important;
+                }
             }
             @media (max-width: 480px) {
                 .top-controls-bar {
@@ -2919,6 +2927,9 @@
                 }
                 .control-btn {
                     padding: 5px 8px;
+                }
+                .back-link {
+                    margin: 0.85rem 1rem 0.4rem !important;
                 }
             }
         `;
@@ -2988,15 +2999,39 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                                 <span>Utilities Hub</span>
                             </a>
-                            <div class="mobile-chips-grid">
-                                <a href="https://utility.astrong.xyz/contrast" class="mobile-chip">Contrast</a>
-                                <a href="https://utility.astrong.xyz/metar" class="mobile-chip">METAR</a>
-                                <a href="https://utility.astrong.xyz/password" class="mobile-chip">Password</a>
-                                <a href="https://utility.astrong.xyz/qrcode" class="mobile-chip">QR Code</a>
-                                <a href="https://utility.astrong.xyz/lorem" class="mobile-chip">Lorem</a>
-                                <a href="https://utility.astrong.xyz/progress" class="mobile-chip">Progress</a>
-                                <a href="https://utility.astrong.xyz/text" class="mobile-chip">Text Tools</a>
-                                <a href="https://utility.astrong.xyz/time" class="mobile-chip">Time</a>
+                            <div class="mobile-nav-sublinks">
+                                <a href="https://utility.astrong.xyz/contrast" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-palette"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.74 1.7-1.67 0-.42-.16-.82-.44-1.12-.27-.3-.43-.7-.43-1.13 0-.93.75-1.68 1.68-1.68h2.09c3.04 0 5.4-2.46 5.4-5.5 0-4.97-4.48-9-10-9z"/></svg>
+                                    <span>Color Contrast</span>
+                                </a>
+                                <a href="https://utility.astrong.xyz/metar" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plane"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                                    <span>METAR Weather</span>
+                                </a>
+                                <a href="https://utility.astrong.xyz/password" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                                    <span>Password Generator</span>
+                                </a>
+                                <a href="https://utility.astrong.xyz/qrcode" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-qr-code"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+                                    <span>QR Code Generator</span>
+                                </a>
+                                <a href="https://utility.astrong.xyz/lorem" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-text"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>
+                                    <span>Lorem Ipsum</span>
+                                </a>
+                                <a href="https://utility.astrong.xyz/progress" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                    <span>Progress Tracker</span>
+                                </a>
+                                <a href="https://utility.astrong.xyz/text" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-type"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+                                    <span>Text Tools</span>
+                                </a>
+                                <a href="https://utility.astrong.xyz/time" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    <span>Time Converter</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -3012,7 +3047,7 @@
                     </div>
 
                     <div class="mobile-drawer-section mobile-drawer-actions">
-                        <span class="mobile-drawer-section-title">Controls</span>
+                        <span class="mobile-drawer-section-title">More</span>
                         <div class="mobile-actions-list">
                             <button id="mobile-drawer-settings-btn" class="mobile-action-item">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
